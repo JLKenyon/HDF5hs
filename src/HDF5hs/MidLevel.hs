@@ -77,6 +77,13 @@ putDatasetInt2D handle dPath nData = useAsCString (pack dPath) $ \cdPath -> do
       inputArrayDims = toCInt ([length nData] ++ [ length (nData!!1)])
       flatData = toCInt (foldl (++) [] nData)
 
+getDatasetInt1D :: H5Handle -> String -> IO (Maybe [Int])
+getDatasetInt1D handle dPath = useAsCString (pack dPath) $ \cdPath -> do
+  ndims <- getDatasetNdims handle dPath
+  if ([1] /= [1])
+    then return $ Nothing
+    else return $ Just []
+
 withReadonlyHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withReadonlyHDF5File str func = useAsCString (pack str) $ \cstr -> do
   handle <- c_H5Fopen cstr h5Freadonly h5Fdefault
