@@ -41,9 +41,6 @@ import Foreign.Marshal.Array
 
 import HDF5hs.LowLevel
 import HDF5hs.MidLevel
-import TestUtils
-
-
 
 midLevelTestGroup = testGroup "Mid level Interface Tests" 
                     [ testCase "H5FcreateMid"        $ testH5FcreateMid
@@ -51,7 +48,6 @@ midLevelTestGroup = testGroup "Mid level Interface Tests"
                     , testCase "putDatasetInt"       $ testPutDatasetInt
                     , testCase "putAndGetDatasetInt" $ testPutAndGetDatasetInt
                     , testCase "putDatasetIntOneDim" $ testPutDataIntOneDim
-                    , testCase "stupidTest"          $ stupidTest
                     ]
 
 testH5FcreateMid :: Assertion
@@ -108,7 +104,3 @@ testPutDataIntOneDim = do
            nData = [1..6]
            lDat  = [toEnum $ length nData]
 
-
-stupidTest :: Assertion
-stupidTest = do
-  assertBool "dumb test" ((mkstemp "abcXXXXXX.txt") /= "abcXXXXXX.txt")
