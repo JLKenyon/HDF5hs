@@ -30,6 +30,7 @@
   --}
 
 
+
 module HDF5hs.MidLevel where
 
 import System.Environment
@@ -42,6 +43,8 @@ import Foreign.C.Types
 import Foreign.Marshal.Array
 import Foreign.Marshal.Alloc
 import Foreign.Storable
+
+import Unsafe.Coerce (unsafeCoerce)
 
 hdf5HelloMid = "Hello World Mid Level"
 
@@ -56,12 +59,21 @@ withNewHDF5File str func = useAsCString (pack str) $ \cstr -> do
   c_H5Fclose handle
   return val
 
+withHDF5File :: String -> (H5Handle -> IO a) -> IO a
+withHDF5File str func = useAsCString (pack str) $ \cstr -> do
+  handle <- c_H5Fcreate cstr h5Foverwrite h5Fdefault h5Fdefault
+  val <- func handle
+  c_H5Fflush handle h5Sglobal
+  c_H5Fclose handle
+  return val
+
 putDatasetInt1D :: H5Handle -> String -> [Int] -> IO CInt
-putDatasetInt1D handle dPath nData = useAsCString (pack dPath) $ \cdPath -> do 
-  withArray inputArrayDims                       $ \lenBuffer -> do
-  withArray (map (\v -> (toEnum v)::CInt) nData) $ \datBuffer -> do
+putDatasetInt1D handle dPath nData = do
+  useAsCString (pack dPath) $ \cdPath    -> do 
+  withArray inputArrayDims  $ \lenBuffer -> do
+  withArray (toCInt nData)  $ \datBuffer -> do
   ret <- c_H5LTmake_dataset_int handle cdPath (toEnum 1) lenBuffer datBuffer
-  c_H5Fflush handle h5Slocal
+  c_H5Fflush handle h5Sglobal
   return ret
     where
       inputArrayDims = toCInt [length nData]
@@ -77,12 +89,16 @@ putDatasetInt2D handle dPath nData = useAsCString (pack dPath) $ \cdPath -> do
       inputArrayDims = toCInt ([length nData] ++ [ length (nData!!1)])
       flatData = toCInt (foldl (++) [] nData)
 
+
+{--
+c_H5LTget_dataset_info :: H5Handle -> CString -> Ptr CInt -> Ptr CInt -> Ptr H5TypeClass -> Ptr CInt -> IO CInt
+--}
 getDatasetInt1D :: H5Handle -> String -> IO (Maybe [Int])
 getDatasetInt1D handle dPath = useAsCString (pack dPath) $ \cdPath -> do
   ndims <- getDatasetNdims handle dPath
-  if ([1] /= [1])
-    then return $ Nothing
-    else return $ Just []
+  if (ndims /= 1)
+     then return $ Nothing
+     else do return $ Just []
 
 withReadonlyHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withReadonlyHDF5File str func = useAsCString (pack str) $ \cstr -> do
@@ -91,11 +107,13 @@ withReadonlyHDF5File str func = useAsCString (pack str) $ \cstr -> do
   c_H5Fclose handle
   return val
 
-getDatasetNdims :: H5Handle -> String -> IO [CInt]
+getDatasetNdims :: H5Handle -> String -> IO Int
 getDatasetNdims handle path = do
   useAsCString (pack path) $ \dPath -> do
     ptr <- newArray [-128]
     c_H5LTget_dataset_ndims handle dPath ptr
     val <- peekArray 1 ptr
     free ptr
-    return val
+    return $ unsafeCoerce $ head $ val
+
+

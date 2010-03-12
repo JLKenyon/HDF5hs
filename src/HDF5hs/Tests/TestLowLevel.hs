@@ -129,7 +129,7 @@ testH5FcreateAndCheckSize = do
           handle <- c_H5Fopen cfn h5Freadonly h5Fdefault
           ndims <- getDatasetNdims handle "/data"
           c_H5Fclose handle
-          assertBool "oh geez" (ndims == [1])
+          assertBool "oh geez" (ndims == 1)
 
 
 

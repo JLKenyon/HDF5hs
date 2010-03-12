@@ -28,7 +28,6 @@
   
   --}
 
- 
 module TestMidLevel (midLevelTestGroup) where
 
 import Test.Framework (testGroup)
@@ -42,11 +41,17 @@ import Foreign.Marshal.Array
 
 import HDF5hs.LowLevel
 import HDF5hs.MidLevel
+import TestUtils
+
+
 
 midLevelTestGroup = testGroup "Mid level Interface Tests" 
                     [ testCase "H5FcreateMid"        $ testH5FcreateMid
+                    , testCase "withHDF5File"        $ testWithHDF5File
                     , testCase "putDatasetInt"       $ testPutDatasetInt
+                    , testCase "putAndGetDatasetInt" $ testPutAndGetDatasetInt
                     , testCase "putDatasetIntOneDim" $ testPutDataIntOneDim
+                    , testCase "stupidTest"          $ stupidTest
                     ]
 
 testH5FcreateMid :: Assertion
@@ -66,14 +71,33 @@ testPutDatasetInt =  do
     where fn    = "/tmp/testPutDatesetInt1D.h5"
           dpath = "/testdata"
 
+testWithHDF5File :: Assertion
+testWithHDF5File = do
+  withNewHDF5File fn $ \handle -> do return ()
+  ret <- withHDF5File fn $ \handle -> do return ((unH5Handle handle) >= 0)
+  removeFile fn
+  assertBool "Could not reopen an HDF5 file" ret
+    where fn = "/tmp/testWithHDF5File.h5"
+
+testPutAndGetDatasetInt :: Assertion
+testPutAndGetDatasetInt =  do
+  withNewHDF5File     fn $ \handle -> do putDatasetInt1D handle dpath testData
+  val <- withHDF5File fn $ \handle -> do getDatasetInt1D handle dpath
+--  removeFile fn
+  assertBool "testPuDatasetInt failed to create a new file" 
+             (val == Just testData)
+    where fn       = "/tmp/testPutAndGetDatesetInt1D.h5"
+          dpath    = "/testdata"
+          testData = [1..8]
+
 testPutDataIntOneDim :: Assertion
 testPutDataIntOneDim = do 
-  useAsCString (pack fn)               $ \cfn       -> do 
-  useAsCString (pack dPath)            $ \cdPath    -> do 
-  withArray    (toCInt lDat)           $ \lenBuffer -> do 
-  withArray    (toCInt nData)          $ \datBuffer -> do
-     handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
-     lbufval <- peekArray 1 lenBuffer
+  useAsCString (pack fn)      $ \cfn       -> do 
+  useAsCString (pack dPath)   $ \cdPath    -> do 
+  withArray    (toCInt lDat)  $ \lenBuffer -> do 
+  withArray    (toCInt nData) $ \datBuffer -> do
+     handle  <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
+     lbufval <- peekArray   1   lenBuffer
      st <- c_H5LTmake_dataset_int handle cdPath (toEnum 1) lenBuffer datBuffer
      c_H5Fclose handle
      removeFile fn
@@ -83,3 +107,8 @@ testPutDataIntOneDim = do
            dPath = "/mydata"
            nData = [1..6]
            lDat  = [toEnum $ length nData]
+
+
+stupidTest :: Assertion
+stupidTest = do
+  assertBool "dumb test" ((mkstemp "abcXXXXXX.txt") /= "abcXXXXXX.txt")
