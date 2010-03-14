@@ -10,24 +10,16 @@ Maintainer: jlkenyon@gmail.com
 Cabal-Version: >= 1.8
 build-type: Simple
 
-
-
 library
   Exposed-Modules: HDF5hs.LowLevel, HDF5hs.MidLevel, HDF5hs
   HS-Source-Dirs:  src
-  Build-Depends:   base >= 2.0, bytestring >= 0.9.1.5
+  Build-Depends:   base >= 2.0, bytestring >= 0.9.1.5, process >= 1.0.1.1
   extra-libraries: hdf5, hdf5_hl
---  extra-lib-dirs: /home/jkenyon/system/hdf5-1.8.3/lib
---  include-dirs:   /home/jkenyon/system/hdf5-1.8.3/include
-
---flag test
---  description: Build test program.
---  default:     False
+  extensions:      GeneralizedNewtypeDeriving
 
 Executable testHDF5
   HS-Source-Dirs: src, src/HDF5hs/Tests
---  other-modules:  HDF5hs.LowLevel, HDF5hs.MidLevel, HDF5hs
---  Other-Modules:  HDF5hs
   main-is:        TestMain.hs
-  build-depends:  base, HUnit, test-framework-hunit, test-framework, directory, HDF5hs, bytestring >= 0.9.1.5, haskell98
+  build-depends:  base, HUnit, test-framework-hunit, test-framework, directory, 
+                  HDF5hs, bytestring >= 0.9.1.5, haskell98, process >= 1.0.1.1
   extra-libraries: hdf5, hdf5_hl
