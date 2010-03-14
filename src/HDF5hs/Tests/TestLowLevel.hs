@@ -47,16 +47,21 @@ import Foreign.Storable (peek)
 import Foreign.Marshal.Array
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils (with)
+import Foreign.C.Types (CInt)
 
 import HDF5hs.LowLevel
 import HDF5hs.MidLevel
 
 import Data.Maybe (isJust)
+import Unsafe.Coerce (unsafeCoerce)
+
 
 lowLevelTestGroup = testGroup "Low level Interface Tests" 
   [ testCase "H5Fcreate" testH5Fcreate 
   , testCase "H5FCreate and Reopen" testH5FcreateAndReopen
+  , testCase "H5FCreate and Check Dims" testH5FcreateAndCheckNumDims
   , testCase "H5FCreate and Check Size" testH5FcreateAndCheckSize
+  , testCase "H5FCreate and Check" testH5FcreateAndCheck
   ]
 
 testH5Fcreate ::Assertion
@@ -83,7 +88,7 @@ testH5FcreateWithInt =  useAsCString (pack fn) $ \ptr          -> do
   assertBool "H5Fcreate failed to create a new HDF5 file" success
     where
       fn = "/tmp/testH5FCreateWithInt.h5"
-      newData = [1..6]
+      newData = [2..6]
 
 testH5FcreateAndReopen :: Assertion
 testH5FcreateAndReopen = useAsCString (pack fn) $ \cfn -> do 
@@ -100,16 +105,16 @@ testH5FcreateAndReopen = useAsCString (pack fn) $ \cfn -> do
         ((unH5Handle handle2) >= 0)
     where
       fn = "/tmp/testH5FCreateAndReadWithInt.h5"
-      newData = [1,2,3,4,5,6]
+      newData = [2..6]
 
 
-testH5FcreateAndCheckSize :: Assertion
-testH5FcreateAndCheckSize = do 
+testH5FcreateAndCheckNumDims :: Assertion
+testH5FcreateAndCheckNumDims = do 
   createTestFile testFile testData
   checkTestFile  testFile testData
     where
-      testFile = "/tmp/testH5FCreateAndCheck.h5"
-      testData = [1..6]
+      testFile = "/tmp/testH5FCreateAndCheckDims.h5"
+      testData = [2..6]
 -- ---------------------------------------
       createTestFile :: String -> [Int] -> IO ()
       createTestFile fn newData = do
@@ -131,5 +136,84 @@ testH5FcreateAndCheckSize = do
           c_H5Fclose handle
           assertBool "oh geez" (ndims == 1)
 
+testH5FcreateAndCheckSize :: Assertion
+testH5FcreateAndCheckSize = do 
+  createTestFile testFile testData
+  checkTestFile  testFile testData
+    where
+      testFile = "/tmp/testH5FCreateAndCheckSize.h5"
+      testPath = "/data"
+      testData = [2..6]
+-- ---------------------------------------
+      createTestFile :: String -> [Int] -> IO ()
+      createTestFile fn newData = do
+        useAsCString (pack fn)      $ \cfn -> do 
+        useAsCString (pack testPath) $ \dpath -> do
+        withArray (toCInt [length newData]) $ \lenData -> do
+        withArray (toCInt newData)          $ \bufData -> do
+          handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault 
+          c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
+          c_H5Fclose handle
+          return ()
+-- --------------------------------------
+      checkTestFile :: String -> [Int] -> IO ()
+      checkTestFile fn oldData = do 
+        useAsCString (pack fn) $ \cfn -> do
+        useAsCString (pack testPath) $ \cdPath -> do
+          handle <- c_H5Fopen cfn h5Freadonly h5Fdefault
+          ndims <- withArray [0] $ \ptr -> do
+            c_H5LTget_dataset_ndims handle cdPath ptr
+            ndimsArray <- peekArray 1 ptr
+            return $ unsafeCoerce $ head $ ndimsArray
+          datSize <- do
+            withArray [1..ndims]    $ \dimPtr     -> do
+            withArray [h5Fno_class] $ \classIdPtr -> do 
+            withArray [0]           $ \sizePtr    -> do
+              c_H5LTget_dataset_info handle  cdPath dimPtr classIdPtr sizePtr
+              peekArray (unsafeCoerce ndims) dimPtr
+          assertBool "Could not verify data size" 
+                         ((map unsafeCoerce datSize) == [length testData])
 
 
+testH5FcreateAndCheck :: Assertion
+testH5FcreateAndCheck = do 
+  createTestFile testFile testData
+  checkTestFile  testFile testData
+    where
+      testFile = "/tmp/testH5FCreateAndCheck.h5"
+      testPath = "/data"
+      testData = [2..7]
+-- ---------------------------------------
+      createTestFile :: String -> [Int] -> IO ()
+      createTestFile fn newData = do
+        useAsCString (pack fn)      $ \cfn -> do 
+        useAsCString (pack testPath) $ \dpath -> do
+        withArray (toCInt [length newData]) $ \lenData -> do
+        withArray (toCInt newData)          $ \bufData -> do
+          handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault 
+          c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
+          c_H5Fclose handle
+          return ()
+-- --------------------------------------
+      checkTestFile :: String -> [Int] -> IO ()
+      checkTestFile fn oldData = do 
+        useAsCString (pack fn) $ \cfn -> do
+        useAsCString (pack testPath) $ \cdPath -> do
+          handle <- c_H5Fopen cfn h5Freadonly h5Fdefault
+          ndims <- withArray [0] $ \ptr -> do
+            c_H5LTget_dataset_ndims handle cdPath ptr
+            ndimsArray <- peekArray 1 ptr
+            return $ unsafeCoerce $ head $ ndimsArray
+          datSize <- do
+            withArray [1..ndims]    $ \dimPtr     -> do
+            withArray [h5Fno_class] $ \classIdPtr -> do 
+            withArray [0]           $ \sizePtr    -> do
+              c_H5LTget_dataset_info handle  cdPath dimPtr classIdPtr sizePtr
+              cDat <- peekArray (unsafeCoerce ndims) dimPtr
+              return $ head cDat
+          dat <- do
+            withArray [1..datSize] $ \datPtr -> do
+            c_H5LTread_dataset_int handle cdPath datPtr
+            peekArray (unsafeCoerce datSize) datPtr
+          assertBool "Could not verify data" 
+                         ((map unsafeCoerce dat) == testData)

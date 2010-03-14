@@ -42,10 +42,13 @@ import Foreign.Marshal.Array
 import HDF5hs.LowLevel
 import HDF5hs.MidLevel
 
+import System.Cmd (rawSystem)
+
 midLevelTestGroup = testGroup "Mid level Interface Tests" 
                     [ testCase "H5FcreateMid"        $ testH5FcreateMid
                     , testCase "withHDF5File"        $ testWithHDF5File
                     , testCase "putDatasetInt"       $ testPutDatasetInt
+                    , testCase "getDatasetInfo"      $ testGetDatasetInfo
                     , testCase "putAndGetDatasetInt" $ testPutAndGetDatasetInt
                     , testCase "putDatasetIntOneDim" $ testPutDataIntOneDim
                     ]
@@ -75,16 +78,28 @@ testWithHDF5File = do
   assertBool "Could not reopen an HDF5 file" ret
     where fn = "/tmp/testWithHDF5File.h5"
 
+testGetDatasetInfo :: Assertion
+testGetDatasetInfo = do
+  withNewHDF5File fn $ \handle -> do putDatasetInt1D handle dPath testData
+  info <- withReadonlyHDF5File fn $ \handle -> do getDatasetInfo handle dPath 
+  assertBool "Failed to get proper dataset info" 
+                 (info == (H5DatasetInfo [8] (h5Finteger) 4))
+    where
+      fn       = "/tmp/testGetDatasetInfo.h5"
+      dPath    = "/testdata"
+      testData = [1..8]
+
 testPutAndGetDatasetInt :: Assertion
 testPutAndGetDatasetInt =  do
-  withNewHDF5File     fn $ \handle -> do putDatasetInt1D handle dpath testData
-  val <- withHDF5File fn $ \handle -> do getDatasetInt1D handle dpath
---  removeFile fn
-  assertBool "testPuDatasetInt failed to create a new file" 
-             (val == Just testData)
-    where fn       = "/tmp/testPutAndGetDatesetInt1D.h5"
+  withNewHDF5File             fn $ \handle -> do putDatasetInt1D handle dpath testData
+  val <- withReadonlyHDF5File fn $ \handle -> do getDatasetInt1D handle dpath
+  removeFile fn
+  assertBool "testPuDatasetInt failed to create a new file"
+                 (val == Just testData)
+    where fn       = "/tmp/testPutAndGetDatesetInt1D_five.h5"
           dpath    = "/testdata"
           testData = [1..8]
+
 
 testPutDataIntOneDim :: Assertion
 testPutDataIntOneDim = do 
