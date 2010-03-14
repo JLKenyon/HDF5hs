@@ -57,9 +57,6 @@ import Data.Int
 import Data.Word
 import Foreign.StablePtr
 
--- import Hugs.Prelude
--- import Hugs.Ptr
--- import Hugs.Storable
 
 #include <hdf5.h>
 
@@ -85,13 +82,15 @@ newtype H5OpenMode = H5OpenMode { unH5OpenMode  :: CInt }
  }
 
 newtype H5TypeClass = H5TypeClass { unH5TypeClass :: CInt }
-    deriving (Eq, Show)
+    deriving (Eq, Show, Storable)
 
-instance Storable (H5TypeClass) where
-  sizeOf      _     = sizeOf (undefined::Int32)
-  alignment   _     = alignment (undefined::Int32)
---  peekElemOff p i   = liftM (/= (0::Int32)) & peekElemOff (castPtr p) i
---  pokeElemOff p i x = pokeElemOff (castPtr p) i x
+-- This doesn't seem to work!  I lifted the code from Hugs (not GHC)
+-- I suppose I should report this or something?
+--instance Storable (H5TypeClass) where
+--  sizeOf      _     = sizeOf (undefined::Int32)
+--  alignment   _     = alignment (undefined::Int32)
+----  peekElemOff p i   = liftM (/= (0::Int32)) & peekElemOff (castPtr p) i
+----  pokeElemOff p i x = pokeElemOff (castPtr p) i x
 
 #{enum H5TypeClass, H5TypeClass
  , h5Fno_class  = H5T_NO_CLASS 
@@ -173,7 +172,7 @@ foreign import ccall "hdf5.h H5LTget_dataset_ndims"
 -- ---------------------------------------------------------------------------------------
 --herr_t H5LTget_dataset_info    ( hid_t loc_id, const char *dset_name, hsize_t *dims, H5T_class_t *class_id, size_t *type_size )
 foreign import ccall "hdf5.h H5LTget_dataset_info"
-         c_H5LTget_dataset_info :: H5Handle -> CString -> Ptr CInt -> Ptr CInt -> Ptr H5TypeClass -> Ptr CInt -> IO CInt
+         c_H5LTget_dataset_info :: H5Handle -> CString -> Ptr CInt -> Ptr H5TypeClass -> Ptr CInt -> IO CInt
 
 -- ---------------------------------------------------------------------------------------
 --herr_t H5LTfind_dataset       (hid_t loc_id, const char *dset_name )
