@@ -54,7 +54,7 @@ import HDF5hs.MidLevel
 
 import Data.Maybe (isJust)
 import Unsafe.Coerce (unsafeCoerce)
-
+import TestUtil (withTempFileName)
 
 lowLevelTestGroup = testGroup "Low level Interface Tests" 
   [ testCase "H5Fcreate" testH5Fcreate 
@@ -66,32 +66,34 @@ lowLevelTestGroup = testGroup "Low level Interface Tests"
 
 testH5Fcreate ::Assertion
 testH5Fcreate = useAsCString (pack fn) $ \cfn -> do 
-                  handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
-                  c_H5Fclose handle
-                  success <- doesFileExist fn
-                  removeFile fn
-                  assertBool "H5Fcreate failed to create a new HDF5 file"
-                                 (unH5Handle handle >= 0)
-                      where
-                        fn = "/tmp/testH5FCreate.h5"
+  withTempFileName   $ \fn     -> do
+  handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
+  c_H5Fclose handle
+  success <- doesFileExist fn
+  assertBool "H5Fcreate failed to create a new HDF5 file"
+                 (unH5Handle handle >= 0)
+      where
+        fn = "/tmp/testH5FCreate.h5"
 
 testH5FcreateWithInt :: Assertion
-testH5FcreateWithInt =  useAsCString (pack fn) $ \ptr          -> do 
-  useAsCString (pack "/data")                  $ \dpath        -> do
-  withArray (toCInt [length newData])          $ \lenData      -> do
-  withArray (toCInt newData)                   $ \bufferedData -> do
+testH5FcreateWithInt =  do
+  withTempFileName   $ \fn     -> do
+  useAsCString (pack fn)              $ \ptr          -> do 
+  useAsCString (pack "/data")         $ \dpath        -> do
+  withArray (toCInt [length newData]) $ \lenData      -> do
+  withArray (toCInt newData)          $ \bufferedData -> do
   handle <- c_H5Fcreate ptr h5Foverwrite h5Fdefault h5Fdefault 
   c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufferedData
   c_H5Fclose handle
   success <- doesFileExist fn 
-  removeFile fn
   assertBool "H5Fcreate failed to create a new HDF5 file" success
     where
-      fn = "/tmp/testH5FCreateWithInt.h5"
       newData = [2..6]
 
 testH5FcreateAndReopen :: Assertion
-testH5FcreateAndReopen = useAsCString (pack fn) $ \cfn -> do 
+testH5FcreateAndReopen = do
+  withTempFileName   $ \fn     -> do
+  useAsCString (pack fn) $ \cfn -> do 
   useAsCString (pack "/data") $ \dpath -> do
   withArray (toCInt [length newData]) $ \lenData -> do
   withArray (toCInt newData)          $ \bufData -> do
@@ -100,20 +102,18 @@ testH5FcreateAndReopen = useAsCString (pack fn) $ \cfn -> do
     c_H5Fclose handle
     handle2 <- c_H5Fopen cfn h5Freadonly h5Fdefault
     c_H5Fclose handle2
-    removeFile fn
     assertBool "H5Fcreate failed to create and open a new HDF5 file" 
         ((unH5Handle handle2) >= 0)
     where
-      fn = "/tmp/testH5FCreateAndReadWithInt.h5"
       newData = [2..6]
 
 
 testH5FcreateAndCheckNumDims :: Assertion
-testH5FcreateAndCheckNumDims = do 
-  createTestFile testFile testData
-  checkTestFile  testFile testData
+testH5FcreateAndCheckNumDims = do   
+  withTempFileName   $ \fn     -> do
+  createTestFile fn testData
+  checkTestFile  fn testData
     where
-      testFile = "/tmp/testH5FCreateAndCheckDims.h5"
       testData = [2..6]
 -- ---------------------------------------
       createTestFile :: String -> [Int] -> IO ()
@@ -135,13 +135,14 @@ testH5FcreateAndCheckNumDims = do
           ndims <- getDatasetNdims handle "/data"
           c_H5Fclose handle
           assertBool "oh geez" (ndims == 1)
+        
 
 testH5FcreateAndCheckSize :: Assertion
 testH5FcreateAndCheckSize = do 
-  createTestFile testFile testData
-  checkTestFile  testFile testData
+  withTempFileName   $ \fn     -> do
+  createTestFile fn testData
+  checkTestFile  fn testData
     where
-      testFile = "/tmp/testH5FCreateAndCheckSize.h5"
       testPath = "/data"
       testData = [2..6]
 -- ---------------------------------------
@@ -177,8 +178,9 @@ testH5FcreateAndCheckSize = do
 
 testH5FcreateAndCheck :: Assertion
 testH5FcreateAndCheck = do 
-  createTestFile testFile testData
-  checkTestFile  testFile testData
+  withTempFileName   $ \fn     -> do
+  createTestFile fn testData
+  checkTestFile  fn testData
     where
       testFile = "/tmp/testH5FCreateAndCheck.h5"
       testPath = "/data"

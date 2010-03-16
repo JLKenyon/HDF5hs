@@ -44,6 +44,8 @@ import HDF5hs.MidLevel
 
 import System.Cmd (rawSystem)
 
+import TestUtil (withTempFileName)
+
 midLevelTestGroup = testGroup "Mid level Interface Tests" 
                     [ testCase "H5FcreateMid"        $ testH5FcreateMid
                     , testCase "withHDF5File"        $ testWithHDF5File
@@ -55,54 +57,53 @@ midLevelTestGroup = testGroup "Mid level Interface Tests"
 
 testH5FcreateMid :: Assertion
 testH5FcreateMid = do
+  withTempFileName   $ \fn     -> do
   withNewHDF5File fn $ \handle -> do return ()
   ret <- doesFileExist fn
-  removeFile fn
   assertBool "withNewHDF5File failed to create a new file" ret
-    where fn = "/tmp/testMidCreate.h5"
 
 testPutDatasetInt :: Assertion
 testPutDatasetInt =  do
+  withTempFileName   $ \fn     -> do
   withNewHDF5File fn $ \handle -> putDatasetInt1D handle dpath [1..8]
   ret <- doesFileExist fn
-  removeFile fn
   assertBool "testPuDatasetInt failed to create a new file" True
-    where fn    = "/tmp/testPutDatesetInt1D.h5"
-          dpath = "/testdata"
+    where
+      dpath = "/testdata"
 
 testWithHDF5File :: Assertion
 testWithHDF5File = do
+  withTempFileName   $ \fn     -> do
   withNewHDF5File fn $ \handle -> do return ()
   ret <- withHDF5File fn $ \handle -> do return ((unH5Handle handle) >= 0)
-  removeFile fn
   assertBool "Could not reopen an HDF5 file" ret
-    where fn = "/tmp/testWithHDF5File.h5"
 
 testGetDatasetInfo :: Assertion
 testGetDatasetInfo = do
+  withTempFileName   $ \fn     -> do
   withNewHDF5File fn $ \handle -> do putDatasetInt1D handle dPath testData
   info <- withReadonlyHDF5File fn $ \handle -> do getDatasetInfo handle dPath 
   assertBool "Failed to get proper dataset info" 
                  (info == (H5DatasetInfo [8] (h5Finteger) 4))
     where
-      fn       = "/tmp/testGetDatasetInfo.h5"
       dPath    = "/testdata"
       testData = [1..8]
 
 testPutAndGetDatasetInt :: Assertion
 testPutAndGetDatasetInt =  do
-  withNewHDF5File             fn $ \handle -> do putDatasetInt1D handle dpath testData
+  withTempFileName   $ \fn     -> do
+  withNewHDF5File fn $ \handle -> do putDatasetInt1D handle dpath testData
   val <- withReadonlyHDF5File fn $ \handle -> do getDatasetInt1D handle dpath
-  removeFile fn
   assertBool "testPuDatasetInt failed to create a new file"
                  (val == Just testData)
-    where fn       = "/tmp/testPutAndGetDatesetInt1D_five.h5"
-          dpath    = "/testdata"
-          testData = [1..8]
+    where 
+      dpath    = "/testdata"
+      testData = [1..8]
 
 
 testPutDataIntOneDim :: Assertion
 testPutDataIntOneDim = do 
+  withTempFileName            $ \fn        -> do
   useAsCString (pack fn)      $ \cfn       -> do 
   useAsCString (pack dPath)   $ \cdPath    -> do 
   withArray    (toCInt lDat)  $ \lenBuffer -> do 
@@ -111,10 +112,8 @@ testPutDataIntOneDim = do
      lbufval <- peekArray   1   lenBuffer
      st <- c_H5LTmake_dataset_int handle cdPath (toEnum 1) lenBuffer datBuffer
      c_H5Fclose handle
-     removeFile fn
      assertBool "testPutDatasetIntOneDim returned fail" (st <= 0)
          where
-           fn    = "/tmp/testPutDataIntOneDim.h5"
            dPath = "/mydata"
            nData = [1..6]
            lDat  = [toEnum $ length nData]
