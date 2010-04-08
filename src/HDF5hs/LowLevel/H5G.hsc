@@ -164,10 +164,11 @@ foreign import ccall "hdf5.h H5Gmove2"
 
 
 
+{-- -- Macro, no such function, binds to open1 or open2
 -- hid_t H5Gopen( hid_t loc_id, const char *name ) 
 foreign import ccall "hdf5.h H5Gopen"
         c_H5Gopen :: CInt -> CString -> IO CInt
-
+--}
 
 
 ---- hid_t H5Gopen( hid_t loc_id, const char * name, hid_t gapl_id ) 
@@ -178,7 +179,8 @@ foreign import ccall "hdf5.h H5Gopen"
 
 -- hid_t H5Gopen1(hid_t loc_id, const char *name ) 
 foreign import ccall "hdf5.h H5Gopen1"
-        c_H5Gopen1 :: CInt -> CString -> IO CInt
+        c_H5Gopen :: CInt -> CString -> IO CInt
+--        c_H5Gopen1 :: CInt -> CString -> IO CInt
 
 
 

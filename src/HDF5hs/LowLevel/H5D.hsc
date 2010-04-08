@@ -48,10 +48,11 @@ foreign import ccall "hdf5.h H5Dclose"
 
 
 
+{-- -- No such function, just a macro
 -- hid_t H5Dcreate( hid_t loc_id, const char *name, hid_t type_id, hid_t space_id, hid_t dcpl_id ) 
 foreign import ccall "hdf5.h H5Dcreate"
         c_H5Dcreate :: CInt -> CString -> CInt -> CInt -> CInt -> IO CInt
-
+--}
 
 
 ---- hid_t H5Dcreate( hid_t loc_id, const char *name, hid_t dtype_id, hid_t space_id, hid_t lcpl_id, hid_t dcpl_id, hid_t dapl_id ) 
@@ -62,7 +63,8 @@ foreign import ccall "hdf5.h H5Dcreate"
 
 -- hid_t H5Dcreate1( hid_t loc_id, const char *name, hid_t type_id, hid_t space_id, hid_t dcpl_id )
 foreign import ccall "hdf5.h H5Dcreate1"
-        c_H5Dcreate1 :: CInt -> CString -> CInt -> CInt -> CInt -> IO CInt
+        c_H5Dcreate :: CInt -> CString -> CInt -> CInt -> CInt -> IO CInt
+--        c_H5Dcreate1 :: CInt -> CString -> CInt -> CInt -> CInt -> IO CInt
 
 
 
@@ -139,10 +141,11 @@ foreign import ccall "hdf5.h H5Diterate"
 --}
 
 
+{-- -- No such function, just a macro
 -- hid_t H5Dopen( hid_t loc_id, const char *name ) 
 foreign import ccall "hdf5.h H5Dopen"
         c_H5Dopen :: CInt -> CString -> IO CInt
-
+--}
 
 
 ---- hid_t H5Dopen( hid_t loc_id, const char *name, hid_t dapl_id ) 
@@ -153,7 +156,7 @@ foreign import ccall "hdf5.h H5Dopen"
 
 -- hid_t H5Dopen1( hid_t loc_id, const char *name )
 foreign import ccall "hdf5.h H5Dopen1"
-        c_H5Dopen1 :: CInt -> CString -> IO CInt
+        c_H5Dopen :: CInt -> CString -> IO CInt
 
 
 
