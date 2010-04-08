@@ -32,12 +32,26 @@
 
 module HDF5hs.LowLevel.H5LT where
 
+import HDF5hs.LowLevel.H5Types
+
+import Foreign
+import Foreign.C
+import Foreign.C.Types
+import Foreign.C.String
+import Foreign.Marshal
+import Foreign.Marshal.Array
+
+
 --herr_t H5LTmake_dataset ( hid_t loc_id, const char *dset_name, int rank, const hsize_t *dims, hid_t type_id, const void *buffer ) 
 
 
 --herr_t H5LTmake_dataset_char ( hid_t loc_id, const char *dset_name, int rank, const hsize_t *dims, const char *buffer ) 
---herr_t H5LTmake_dataset_short ( hid_t loc_id, const char *dset_name, int rank, const hsize_t *dims, const short *buffer ) 
---herr_t H5LTmake_dataset_int ( hid_t  loc_id, const char *dset_name, int rank, const hsize_t *dims, const int *buffer ) 
+--herr_t H5LTmake_dataset_short ( hid_t loc_id, const char *dset_name, int rank, const hsize_t *dims, const short *buffer )
+
+--herr_t H5LTmake_dataset_int ( hid_t  loc_id, const char *dset_name, int rank, const hsize_t *dims, const int *buffer )
+foreign import ccall "hdf5.h H5LTmake_dataset_int"
+        c_H5LTmake_dataset_int :: H5Handle -> CString -> CInt -> Ptr CInt -> Ptr CInt -> IO CInt
+
 --herr_t H5LTmake_dataset_long ( hid_t  loc_id, const char *dset_name, int rank, const hsize_t *dims, const long *buffer ) 
 --herr_t H5LTmake_dataset_float ( hid_t  loc_id, const char *dset_name, int rank, const hsize_t *dims, const float *buffer )
 --herr_t H5LTmake_dataset_double ( hid_t  loc_id, const char *dset_name, int rank, const hsize_t *dims, const double *buffer )
@@ -45,14 +59,27 @@ module HDF5hs.LowLevel.H5LT where
 --herr_t H5LTread_dataset ( hid_t  loc_id, const char *dset_name, hid_t  type_id,  void *buffer )
 --herr_t H5LTread_dataset_char ( hid_t  loc_id, const char *dset_name, char *buffer )
 --herr_t H5LTread_dataset_short ( hid_t  loc_id, const char *dset_name, short *buffer )
+
 --herr_t H5LTread_dataset_int ( hid_t  loc_id, const char *dset_name, int *buffer )
+foreign import ccall "hdf5.h H5LTread_dataset_int"
+        c_H5LTread_dataset_int :: H5Handle -> CString -> Ptr CInt -> IO CInt
+
 --herr_t H5LTread_dataset_long ( hid_t  loc_id, const char *dset_name, long *buffer )
 --herr_t H5LTread_dataset_float ( hid_t  loc_id, const char *dset_name, float *buffer )
 --herr_t H5LTread_dataset_double ( hid_t  loc_id, const char *dset_name, double *buffer )
 --herr_t H5LTread_dataset_string ( hid_t  loc_id, const char *dset_name, char *buffer )
 --herr_t H5LTfind_dataset ( hid_t loc_id, const char *dset_name )
+
+
 --herr_t H5LTget_dataset_ndims ( hid_t loc_id, const char *dset_name, int *rank )
+foreign import ccall "hdf5.h H5LTget_dataset_ndims"
+        c_H5LTget_dataset_ndims :: H5Handle -> CString -> Ptr CInt -> IO CInt
+
 --herr_t H5LTget_dataset_info ( hid_t loc_id, const char *dset_name, hsize_t *dims, H5T_class_t *class_id, size_t *type_size )
+foreign import ccall "hdf5.h H5LTget_dataset_info"
+        c_H5LTget_dataset_info :: H5Handle -> CString -> Ptr CInt -> Ptr H5TypeClass -> Ptr CInt -> IO CInt
+
+
 --herr_t H5LTset_attribute_string( hid_t loc_id, const char *obj_name, const char *attr_name, const char *attr_data )
 --herr_t H5LTset_attribute_char ( hid_t loc_id, const char *obj_name, const char *attr_name, char *buffer, hsize_t size)
 --herr_t H5LTset_attribute_short ( hid_t loc_id, const char *obj_name, const char *attr_name, short *buffer, hsize_t size)

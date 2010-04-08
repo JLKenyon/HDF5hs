@@ -38,7 +38,7 @@ import Data.ByteString.Char8 (pack)
 
 --import HDF5hs.LowLevel -- all
 import HDF5hs.LowLevel.H5F
-import HDF5hs.LowLevel.H5LT (c_H5LTget_dataset_ndims,c_H5LTmake_dataset_int)
+import HDF5hs.LowLevel.H5LT
 
 import Foreign.C.Types (CInt)
 import Foreign.C.String (CString)

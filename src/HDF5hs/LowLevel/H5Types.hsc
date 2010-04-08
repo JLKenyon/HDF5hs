@@ -68,6 +68,9 @@ data H5L_iterate_t       = H5L_iterate_t       {}
 data H5LT_lang_t         = H5LT_lang_t         {}
 data H5L_type_t          = H5L_type_t          {}
 
+
+
+
 #include <hdf5.h>
 
 newtype H5OpenFlag = H5OpenFlag { unH5OpenFlag  :: CInt }
@@ -119,3 +122,7 @@ newtype H5Scope = H5Scope { unH5Scope :: CInt }
 
 newtype H5Handle = H5Handle {unH5Handle :: CInt }
     deriving (Eq,Show)
+
+newtype H5T_class_t = H5T_class_t { unH5T_class_t :: CInt }
+    deriving (Eq, Show)
+

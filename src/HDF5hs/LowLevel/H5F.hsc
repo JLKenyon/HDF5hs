@@ -44,13 +44,13 @@ import Foreign.Marshal.Array
 
 -- herr_t H5Fclose( hid_t file_id )
 foreign import ccall "hdf5.h H5Fclose"
-        c_H5Fclose :: CInt -> IO CInt
+        c_H5Fclose :: H5Handle -> IO CInt
 
 
 
 -- hid_t H5Fcreate( const char *name, unsigned flags, hid_t fcpl_id, hid_t fapl_id )
 foreign import ccall "hdf5.h H5Fcreate"
-        c_H5Fcreate :: CString -> CInt -> CInt -> CInt -> IO CInt
+        c_H5Fcreate :: CString -> H5OpenFlag -> CInt -> CInt -> IO H5Handle
 
 
 
@@ -153,7 +153,7 @@ foreign import ccall "hdf5.h H5Fmount"
 
 -- hid_t H5Fopen( const char *name, unsigned flags, hid_t fapl_id )
 foreign import ccall "hdf5.h H5Fopen"
-        c_H5Fopen :: CString -> CInt -> CInt -> IO CInt
+        c_H5Fopen :: CString -> H5OpenMode -> CInt -> IO H5Handle
 
 
 

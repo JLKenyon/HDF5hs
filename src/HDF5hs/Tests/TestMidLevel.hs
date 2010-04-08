@@ -46,6 +46,16 @@ import System.Cmd (rawSystem)
 
 import TestUtil (withTempFileName)
 
+import HDF5hs.LowLevel
+import HDF5hs.LowLevel.H5F 
+import HDF5hs.LowLevel.H5A 
+import HDF5hs.LowLevel.H5L 
+import HDF5hs.LowLevel.H5G 
+import HDF5hs.LowLevel.H5D 
+import HDF5hs.LowLevel.H5LT 
+import HDF5hs.LowLevel.H5Types 
+import HDF5hs.MidLevel
+
 midLevelTestGroup = testGroup "Mid level Interface Tests" 
                     [ testCase "H5FcreateMid"        $ testH5FcreateMid
                     , testCase "withHDF5File"        $ testWithHDF5File
