@@ -34,6 +34,12 @@ module HDF5hs.LowLevel.H5F where
 
 import HDF5hs.LowLevel.H5Types
 
+import Foreign
+import Foreign.C
+import Foreign.C.Types
+import Foreign.C.String
+import Foreign.Marshal
+import Foreign.Marshal.Array
 
 
 -- herr_t H5Fclose( hid_t file_id )
@@ -49,9 +55,10 @@ foreign import ccall "hdf5.h H5Fcreate"
 
 
 -- herr_t H5Fflush(hid_t object_id, H5F_scope_t scope )
+{--
 foreign import ccall "hdf5.h H5Fflush"
         c_H5Fflush :: CInt -> H5F_scope_t -> IO CInt
-
+--}
 
 
 -- hid_t H5Fget_access_plist(hid_t file_id)

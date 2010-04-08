@@ -34,6 +34,12 @@ module HDF5hs.LowLevel.H5L where
 
 import HDF5hs.LowLevel.H5Types
 
+import Foreign
+import Foreign.C
+import Foreign.C.Types
+import Foreign.C.String
+import Foreign.Marshal
+import Foreign.Marshal.Array
 
 
 -- herr_t H5Lcopy( hid_t src_loc_id, const char *src_name, hid_t dest_loc_id, const char *dest_name, hid_t lcpl_idhid_t lapl_id ) 
@@ -61,9 +67,10 @@ foreign import ccall "hdf5.h H5Lcreate_soft"
 
 
 -- herr_t H5Lcreate_ud( hid_t link_loc_id, const char *link_name, H5L_type_t link_type, const char *udata, size_t udata_size, hid_t lcpl_id, hid_t lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Lcreate_ud"
         c_H5Lcreate_ud :: CInt -> CString -> H5L_type_t -> CString -> CULLong -> CInt -> CInt -> IO CInt
-
+--}
 
 
 -- htri_t H5Lexists( hid_t loc_id, const char *name, hid_t lapl_id ) 
@@ -73,21 +80,24 @@ foreign import ccall "hdf5.h H5Lexists"
 
 
 -- herr_t H5Lget_info( hid_t link_loc_id, const char *link_name, H5L_info_t *link_buff, hid_t lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Lget_info"
         c_H5Lget_info :: CInt -> CString -> Ptr H5L_info_t -> CInt -> IO CInt
+--}
 
 
-
--- herr_t H5Lget_info_by_idx( hid_t loc_id, const char *group_name, H5_index_t index_field, H5_iter_order_t order, hsize_t n, H5L_info_t *link_val, hid_t lapl_id ) 
+-- herr_t H5Lget_info_by_idx( hid_t loc_id, const char *group_name, H5_index_t index_field, H5_iter_order_t order, hsize_t n, H5L_info_t *link_val, hid_t lapl_id )
+{-- 
 foreign import ccall "hdf5.h H5Lget_info_by_idx"
         c_H5Lget_info_by_idx :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> CULLong -> H5L_info_t -> CInt -> IO CInt
-
+--}
 
 
 -- ssize_t H5Lget_name_by_idx( hid_t loc_id, const char *group_name, H5_index_t index_field, H5_iter_order_t order, hsize_t n, char *name, size_t size, hid_t lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Lget_name_by_idx"
-        c_H5Lget_name_by_idx :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> CULLong -> CCHar -> CULLong -> CInt -> IO CULLong
-
+        c_H5Lget_name_by_idx :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> CULLong -> CChar -> CULLong -> CInt -> IO CULLong
+--}
 
 
 -- herr_t H5Lget_val( hid_t link_loc_id, const char *link_name, void *linkval_buff, size_t size, hid_t lapl_id ) 
@@ -97,27 +107,31 @@ foreign import ccall "hdf5.h H5Lget_val"
 
 
 -- herr_t H5Lget_val_by_idx( hid_t loc_id, const char *group_name, H5_index_t index_type, H5_iter_order_t order, hsize_t n, void *link_val, size_t size, hid_t lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Lget_val_by_idx"
         c_H5Lget_val_by_idx :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> CULLong -> () -> CULLong -> CInt -> IO CInt
-
+--}
 
 
 -- htri_t H5Lis_registered( H5L_type_t link_cls_id ) 
+{--
 foreign import ccall "hdf5.h H5Lis_registered"
         c_H5Lis_registered :: H5L_type_t -> IO CInt
-
+--}
 
 
 -- herr_t H5Literate( hid_t group_id, H5_index_t index_type, H5_iter_order_t order, hsize_t *idx, H5L_iterate_t op, void *op_data ) 
+{--
 foreign import ccall "hdf5.h H5Literate"
         c_H5Literate :: CInt -> H5_index_t -> H5_iter_order_t -> CULLong -> H5L_iterate_t -> () -> IO CInt
-
+--}
 
 
 -- herr_t H5Literate_by_name( hid_t loc_id, const char *group_name, H5_index_t index_type, H5_iter_order_t order, hsize_t *idx, H5L_iterate_t op, void *op_data, hid_t *lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Literate_by_name"
         c_H5Literate_by_name :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> CULLong -> H5L_iterate_t -> () -> CInt -> IO CInt
-
+--}
 
 
 -- herr_t H5Lmove( hid_t src_loc_id, const char *src_name, hid_t dest_loc_id, const char *dest_name, hid_t lcpl, hid_t lapl ) 
@@ -128,7 +142,7 @@ foreign import ccall "hdf5.h H5Lmove"
 
 -- herr_t H5Lregister( const H5L_class_t * link_class ) 
 foreign import ccall "hdf5.h H5Lregister"
-        c_H5Lregister :: Ptr   -> IO CInt
+        c_H5Lregister :: Ptr H5L_class_t  -> IO CInt
 
 
 
@@ -139,9 +153,10 @@ foreign import ccall "hdf5.h H5Ldelete"
 
 
 -- herr_t H5Ldelete_by_idx( hid_t loc_id, const char *group_name, H5_index_t index_field, H5_iter_order_t order, hsize_t n, hid_t lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Ldelete_by_idx"
         c_H5Ldelete_by_idx :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> CULLong -> CInt -> IO CInt
-
+--}
 
 
 -- herr_t H5Lunpack_elink_val( char *ext_linkval, size_t link_size, unsigned *flags, const char **filename, const char **obj_path ) 
@@ -151,20 +166,23 @@ foreign import ccall "hdf5.h H5Lunpack_elink_val"
 
 
 -- herr_t H5Lunregister( H5L_type_t link_cls_id ) 
+{--
 foreign import ccall "hdf5.h H5Lunregister"
         c_H5Lunregister :: H5L_type_t -> IO CInt
-
+--}
 
 
 -- herr_t H5Lvisit( hid_t group_id, H5_index_t index_type, H5_iter_order_t order, H5L_iterate_t op, void *op_data ) 
+{--
 foreign import ccall "hdf5.h H5Lvisit"
         c_H5Lvisit :: CInt -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t -> Ptr () -> IO CInt
+--}
 
 
-
--- herr_t H5Lvisit_by_name( hid_t loc_id, const char *group_name, H5_index_t index_type, H5_iter_order_t order, H5L_iterate_t op, void *op_data, hid_t lapl_id ) 
+-- herr_t H5Lvisit_by_name( hid_t loc_id, const char *group_name, H5_index_t index_type, H5_iter_order_t order, H5L_iterate_t op, void *op_data, hid_t lapl_id )
+{-- 
 foreign import ccall "hdf5.h H5Lvisit_by_name"
         c_H5Lvisit_by_name :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> H5L_iterate_t -> Ptr () -> CInt -> IO CInt
-
+--}
 
 

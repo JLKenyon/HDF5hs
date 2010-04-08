@@ -34,6 +34,12 @@ module HDF5hs.LowLevel.H5G where
 
 import HDF5hs.LowLevel.H5Types
 
+import Foreign
+import Foreign.C
+import Foreign.C.Types
+import Foreign.C.String
+import Foreign.Marshal
+import Foreign.Marshal.Array
 
 
 -- herr_t H5Gclose(hid_t group_id) 
@@ -73,21 +79,25 @@ foreign import ccall "hdf5.h H5Gget_create_plist"
 
 
 -- herr_t H5Gget_info( hid_t group_id, H5G_info_t *group_info ) 
+{--
 foreign import ccall "hdf5.h H5Gget_info"
         c_H5Gget_info :: CInt -> H5G_info_t -> IO CInt
-
+--}
 
 
 -- herr_t H5Gget_info_by_idx( hid_t loc_id, const char *group_name, H5_index_t index_type, H5_iter_order_t order, hsize_t n, H5G_info_t *group_info, hid_t lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Gget_info_by_idx"
         c_H5Gget_info_by_idx :: CInt -> CString -> H5_index_t -> H5_iter_order_t -> CULLong -> Ptr H5G_info_t -> CInt -> IO CInt
+--}
 
 
 
 -- herr_t H5Gget_info_by_name( hid_t loc_id, const char *group_name, H5G_info_t *group_info, hid_t lapl_id ) 
+{--
 foreign import ccall "hdf5.h H5Gget_info_by_name"
         c_H5Gget_info_by_name :: CInt -> CString -> H5G_info_t -> CInt -> IO CInt
-
+--}
 
 
 -- herr_t H5Gget_linkval( hid_t loc_id, const char *name, size_t size, char *value ) 
@@ -103,9 +113,10 @@ foreign import ccall "hdf5.h H5Gget_num_objs"
 
 
 -- herr_t H5Gget_objinfo(hid_t loc_id, const char *name, hbool_t follow_link, H5G_stat_t *statbuf ) 
+{--
 foreign import ccall "hdf5.h H5Gget_objinfo"
         c_H5Gget_objinfo :: CInt -> CString -> CInt -> Ptr H5G_stat_t -> IO CInt
-
+--}
 
 
 -- ssize_t H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char *name, size_t size )
@@ -121,21 +132,24 @@ foreign import ccall "hdf5.h H5Gget_objtype_by_idx"
 
 
 -- int H5Giterate(hid_t loc_id, const char *name, int *idx, H5G_iterate_t operator, void *operator_data ) 
+{--
 foreign import ccall "hdf5.h H5Giterate"
         c_H5Giterate :: CInt -> CChar -> CInt -> H5G_iterate_t -> () -> IO CInt
-
+--}
 
 
 -- herr_t H5Glink(hid_t loc_id, H5G_link_t link_type, const char *current_name, const char *new_name ) 
+{--
 foreign import ccall "hdf5.h H5Glink"
         c_H5Glink :: CInt -> H5G_link_t -> CString -> CString -> IO CInt
-
+--}
 
 
 -- herr_t H5Glink2( hid_t curr_loc_id, const char *current_name, H5G_link_t link_type, hid_t new_loc_id, const char *new_name ) 
+{--
 foreign import ccall "hdf5.h H5Glink2"
         c_H5Glink2 :: CInt -> CString -> H5G_link_t -> CInt -> CString -> IO CInt
-
+--}
 
 
 -- herr_t H5Gmove(hid_t loc_id, const char *src_name, const char *dst_name ) 
@@ -156,9 +170,9 @@ foreign import ccall "hdf5.h H5Gopen"
 
 
 
--- hid_t H5Gopen( hid_t loc_id, const char * name, hid_t gapl_id ) 
-foreign import ccall "hdf5.h H5Gopen"
-        c_H5Gopen :: CInt -> CString -> CInt -> IO CInt
+---- hid_t H5Gopen( hid_t loc_id, const char * name, hid_t gapl_id ) 
+--foreign import ccall "hdf5.h H5Gopen"
+--        c_H5Gopen :: CInt -> CString -> CInt -> IO CInt
 
 
 

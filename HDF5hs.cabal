@@ -12,12 +12,12 @@ build-type: Simple
 
 library
   Exposed-Modules: HDF5hs,
-    HDF5hs.LowLevel, 
+    HDF5hs.LowLevel,
     HDF5hs.MidLevel,
     HDF5hs.LowLevel.H5Types,
     HDF5hs.LowLevel.H5L,
     HDF5hs.LowLevel.H5A,
-    HDF5hs.LowLevel.H5L,
+--    HDF5hs.LowLevel.H5L,
     HDF5hs.LowLevel.H5G,
     HDF5hs.LowLevel.H5F,
     HDF5hs.LowLevel.H5D,

@@ -34,6 +34,14 @@ module HDF5hs.LowLevel.H5D where
 
 import HDF5hs.LowLevel.H5Types
 
+import Foreign
+import Foreign.C
+import Foreign.C.Types
+import Foreign.C.String
+import Foreign.Marshal
+import Foreign.Marshal.Array
+
+
 -- herr_t H5Dclose(hid_t dataset_id )
 foreign import ccall "hdf5.h H5Dclose"
         c_H5Dclose :: CInt -> IO CInt
@@ -46,9 +54,9 @@ foreign import ccall "hdf5.h H5Dcreate"
 
 
 
--- hid_t H5Dcreate( hid_t loc_id, const char *name, hid_t dtype_id, hid_t space_id, hid_t lcpl_id, hid_t dcpl_id, hid_t dapl_id ) 
-foreign import ccall "hdf5.h H5Dcreate"
-        c_H5Dcreate :: CInt -> CString -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
+---- hid_t H5Dcreate( hid_t loc_id, const char *name, hid_t dtype_id, hid_t space_id, hid_t lcpl_id, hid_t dcpl_id, hid_t dapl_id ) 
+--foreign import ccall "hdf5.h H5Dcreate"
+--        c_H5Dcreate :: CInt -> CString -> CInt -> CInt -> CInt -> CInt -> CInt -> IO CInt
 
 
 
@@ -125,9 +133,10 @@ foreign import ccall "hdf5.h H5Dget_type"
 
 
 -- herr_t H5Diterate( void *buf, hid_t type_id, hid_t space_id, H5D_operator_t operator, void *operator_data )
+{--
 foreign import ccall "hdf5.h H5Diterate"
         c_H5Diterate :: Ptr () -> CInt -> CInt -> H5D_operator_t -> Ptr () -> IO CInt
-
+--}
 
 
 -- hid_t H5Dopen( hid_t loc_id, const char *name ) 
@@ -136,9 +145,9 @@ foreign import ccall "hdf5.h H5Dopen"
 
 
 
--- hid_t H5Dopen( hid_t loc_id, const char *name, hid_t dapl_id ) 
-foreign import ccall "hdf5.h H5Dopen"
-        c_H5Dopen :: CInt -> CString -> CInt -> IO CInt
+---- hid_t H5Dopen( hid_t loc_id, const char *name, hid_t dapl_id ) 
+--foreign import ccall "hdf5.h H5Dopen"
+--        c_H5Dopen :: CInt -> CString -> CInt -> IO CInt
 
 
 
@@ -174,7 +183,7 @@ foreign import ccall "hdf5.h H5Dvlen_get_buf_size"
 
 -- herr_t H5Dvlen_reclaim(hid_t type_id, hid_t space_id, hid_t plist_id, void *buf )
 foreign import ccall "hdf5.h H5Dvlen_reclaim"
-        c_H5Dvlen_reclaim :: CInt -> CInt -> CInt -> () -> IO CInt
+        c_H5Dvlen_reclaim :: CInt -> CInt -> CInt -> Ptr () -> IO CInt
 
 
 

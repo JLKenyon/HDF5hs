@@ -31,10 +31,15 @@
 
 module HDF5hs.MidLevel where
 
+import HDF5hs.LowLevel.H5Types
+
 import Data.ByteString (useAsCString)
 import Data.ByteString.Char8 (pack)
 
-import HDF5hs.LowLevel -- all
+--import HDF5hs.LowLevel -- all
+import HDF5hs.LowLevel.H5F
+import HDF5hs.LowLevel.H5LT (c_H5LTget_dataset_ndims,c_H5LTmake_dataset_int)
+
 import Foreign.C.Types (CInt)
 import Foreign.C.String (CString)
 import Foreign.Marshal.Array (withArray,peekArray)
@@ -53,7 +58,6 @@ withNewHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withNewHDF5File str func = useAsCString (pack str) $ \cstr -> do
   handle <- c_H5Fcreate cstr h5Foverwrite h5Fdefault h5Fdefault
   val <- func handle
-  c_H5Fflush handle h5Sglobal
   c_H5Fclose handle
   return val
 
@@ -61,7 +65,6 @@ withHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withHDF5File str func = useAsCString (pack str) $ \cstr -> do
   handle <- c_H5Fcreate cstr h5Foverwrite h5Fdefault h5Fdefault
   val <- func handle
-  c_H5Fflush handle h5Sglobal
   c_H5Fclose handle
   return val
 
@@ -98,7 +101,6 @@ putDatasetInt1D handle dPath nData = do
   withArray inputArrayDims  $ \lenBuffer -> do
   withArray (toCInt nData)  $ \datBuffer -> do
   ret <- c_H5LTmake_dataset_int handle cdPath (toEnum 1) lenBuffer datBuffer
-  c_H5Fflush handle h5Sglobal
   return ret
     where
       inputArrayDims = toCInt [length nData]
@@ -108,7 +110,6 @@ putDatasetInt2D handle dPath nData = useAsCString (pack dPath) $ \cdPath -> do
   withArray inputArrayDims $ \lenBuffer -> do
   withArray flatData $ \datBuffer -> do
   ret <- c_H5LTmake_dataset_int handle cdPath (toEnum 2) lenBuffer datBuffer
-  c_H5Fflush handle h5Slocal
   return ret
     where 
       inputArrayDims = toCInt ([length nData] ++ [ length (nData!!1)])
