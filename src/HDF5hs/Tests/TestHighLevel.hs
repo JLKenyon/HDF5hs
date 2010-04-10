@@ -41,16 +41,19 @@ import TestUtil (withTempFileName)
 import HDF5hs
 
 highLevelTestGroup = testGroup "High level Interface Tests" 
-                     [ testCase "createAndLoad" $ testCreateAndLoad
-                     ]
+  [ testCase "createAndLoadEmpty" $ testCreateAndLoadEmpty
+  , testCase "createAndLoadTrivial" $ testCreateAndLoadTrivial
+  ]
 
-testCreateAndLoad :: Assertion
-testCreateAndLoad = do
+testCreateAndLoadTemplate :: HDF5File -> Assertion
+testCreateAndLoadTemplate testData = do
   withTempFileName   $ \fn     -> do
   writeHDF5File fn testData
   readData <- loadHDF5File fn
   assertBool "Error data mismatch between write and read" (testData == readData)
-    where
-      testData :: HDF5File
-      testData  = H5File []
+
+
+testCreateAndLoadEmpty = testCreateAndLoadTemplate (H5File [])
+testCreateAndLoadTrivial = testCreateAndLoadTemplate 
+                           (H5File [H5Group "/" []])
 

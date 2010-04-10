@@ -55,7 +55,21 @@ data HDF5Data = H5IntData   [Int] [Int]
                 deriving (Show, Eq)
 
 writeHDF5File :: String -> HDF5File -> IO ()
-writeHDF5File = undefined
+writeHDF5File fname (H5File groups) = do
+  withNewHDF5File fname $ \handle -> do
+    mapM (writeHDF5Group handle) groups
+    return ()
+
+writeHDF5Group :: H5Handle -> HDF5Node -> IO ()
+writeHDF5Group handle (H5Group label groups) = do
+  undefined
+  return ()
+
+writeHDF5Group handle (H5DataSet label dat) = do
+  undefined
+  return ()
+
+
 
 loadHDF5File :: String -> IO HDF5File
 loadHDF5File = undefined

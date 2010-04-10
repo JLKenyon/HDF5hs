@@ -63,7 +63,7 @@ withNewHDF5File str func = useAsCString (pack str) $ \cstr -> do
 
 withHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withHDF5File str func = useAsCString (pack str) $ \cstr -> do
-  handle <- c_H5Fcreate cstr h5Foverwrite h5Fdefault h5Fdefault
+  handle <- c_H5Fopen cstr h5Freadwrite h5Fdefault
   val <- func handle
   c_H5Fclose handle
   return val
@@ -71,7 +71,7 @@ withHDF5File str func = useAsCString (pack str) $ \cstr -> do
 getDatasetNdims :: H5Handle -> String -> IO Int
 getDatasetNdims handle path = do
   useAsCString (pack path) $ \dPath -> do
-  withArray [-128] $ \ptr -> do
+  withArray [-128] $ \ptr -> do -- 128 is giberish
     c_H5LTget_dataset_ndims handle dPath ptr
     val <- peekArray 1 ptr
     return $ unsafeCoerce $ head $ val
