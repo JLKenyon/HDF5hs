@@ -28,7 +28,50 @@
 module HDF5hs where
 
 import HDF5hs.LowLevel
+import HDF5hs.LowLevel.H5A     
+import HDF5hs.LowLevel.H5D     
+import HDF5hs.LowLevel.H5F     
+import HDF5hs.LowLevel.H5G     
+import HDF5hs.LowLevel.H5L     
+import HDF5hs.LowLevel.H5LT    
+import HDF5hs.LowLevel.H5Types 
+import HDF5hs.MidLevel
 
 hdf5MainHello :: String
 hdf5MainHello = "Hello from HDF5 (Macaw) - High Level"
+
+data HDF5File = H5File      [HDF5Node]
+                deriving (Show, Eq)
+
+data HDF5Node = H5Group String [HDF5Node]
+              | H5DataSet String HDF5Data
+                deriving (Show, Eq)
+
+data HDF5Data = H5IntData   [Int] [Int]
+              | H5LongData  [Int] [Int]
+              | H5ShortData [Int] [Int]
+              | H5CharData  [Int] [Char]
+              | H5FloatData [Int] [Float]
+                deriving (Show, Eq)
+
+writeHDF5File :: String -> HDF5File -> IO ()
+writeHDF5File = undefined
+
+loadHDF5File :: String -> IO HDF5File
+loadHDF5File = undefined
+
+
+--loadHDF5File :: String -> IO HDF5Obj
+--loadHDF5File fname = do
+--  withReadonlyHDF5File fname $ \handle -> do
+--                       return $ File fname
+                 
+
+
+
+
+
+
+
+
 

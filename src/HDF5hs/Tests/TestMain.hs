@@ -34,12 +34,14 @@ import Test.Framework (defaultMain)--, testGroup)
 --import Data.ByteString (useAsCString)
 --import Data.ByteString.Char8 (pack)
 
-import TestLowLevel (lowLevelTestGroup)
-import TestMidLevel (midLevelTestGroup)
+import TestLowLevel  (lowLevelTestGroup)
+import TestMidLevel  (midLevelTestGroup)
+import TestHighLevel (highLevelTestGroup)
 
 main = defaultMain tests
 
 tests = [ lowLevelTestGroup ,
-          midLevelTestGroup
+          midLevelTestGroup ,
+          highLevelTestGroup
         ]
 
