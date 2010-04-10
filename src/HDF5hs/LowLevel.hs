@@ -25,10 +25,18 @@
   
   --}
 
-module HDF5hs.LowLevel where
+module HDF5hs.LowLevel (withCString) where
+
+import Data.ByteString (useAsCString)
+import Data.ByteString.Char8 (pack)
+import Foreign.C.String (CString)
 
 -- | The hdf5hello is a test function used to verify that the
 --   library has loaded correctly. Try main = print hdf5hello
 hdf5hello :: String
 hdf5hello = "Hello from HDF5 - LowLevel"
+
+withCString :: String -> (CString -> IO a) -> IO a
+withCString str = useAsCString (pack str)
+
 

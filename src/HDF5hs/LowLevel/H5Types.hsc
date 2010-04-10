@@ -68,10 +68,47 @@ data H5L_iterate_t       = H5L_iterate_t       {}
 data H5LT_lang_t         = H5LT_lang_t         {}
 data H5L_type_t          = H5L_type_t          {}
 
-
-
-
 #include <hdf5.h>
+
+newtype H5S_class_t = H5S_class_t { unH5S_class_t :: CInt }
+    deriving (Eq,Show)
+
+#{enum H5S_class_t, H5S_class_t
+ , h5Sno_class = H5S_NO_CLASS
+ , h5Sscalar   = H5S_SCALAR  
+ , h5Ssimple   = H5S_SIMPLE  
+}
+-- , h5Scomplex  = H5S_COMPLEX
+
+newtype H5S_seloper_t = H5S_seloper_t { unH5S_seloper_t :: CInt } 
+    deriving (Eq,Show)
+
+
+#{enum H5S_seloper_t, H5S_seloper_t
+ , h5Sselect_noop    = H5S_SELECT_NOOP   
+ , h5Sselect_set     = H5S_SELECT_SET    
+ , h5Sselect_or      = H5S_SELECT_OR     
+ , h5Sselect_and     = H5S_SELECT_AND
+ , h5Sselect_xor     = H5S_SELECT_XOR
+ , h5Sselect_notb    = H5S_SELECT_NOTB
+ , h5Sselect_nota    = H5S_SELECT_NOTA
+ , h5Sselect_append  = H5S_SELECT_APPEND 
+ , h5Sselect_prepend = H5S_SELECT_PREPEND
+ , h5Sselect_invalid = H5S_SELECT_INVALID
+}
+
+newtype H5S_sel_type  = H5S_sel_type  { unH5S_sel_type  :: CInt } 
+    deriving (Eq,Show)
+
+#{enum H5S_sel_type, H5S_sel_type
+ , h5Ssel_error      = H5S_SEL_ERROR
+ , h5Ssel_none       = H5S_SEL_NONE
+ , h5Ssel_points     = H5S_SEL_POINTS
+ , h5Ssel_hyperslabs = H5S_SEL_HYPERSLABS 
+ , h5Ssel_all        = H5S_SEL_ALL
+ , h5Ssel_n          = H5S_SEL_N
+}
+
 
 newtype H5OpenFlag = H5OpenFlag { unH5OpenFlag  :: CInt }
     deriving (Eq,Show)

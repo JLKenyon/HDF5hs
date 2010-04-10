@@ -16,7 +16,7 @@ all:
 	./Setup.lhs install
 	./Setup.lhs test
 	@mkdir -p doc
-	@haddock -o doc --html  `find src/ -name '*.hs'` `find dist/build/ -name '*.hs'` --optghc=-XGeneralizedNewtypeDeriving > /dev/null
+	@haddock -o doc --html  `find src/ -name '*.hs' | grep -v '#'` `find dist/build/ -name '*.hs'` --optghc=-XGeneralizedNewtypeDeriving > /dev/null
 
 
 

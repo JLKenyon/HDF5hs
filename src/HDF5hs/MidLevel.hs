@@ -36,13 +36,13 @@ import HDF5hs.LowLevel.H5Types
 import Data.ByteString (useAsCString)
 import Data.ByteString.Char8 (pack)
 
---import HDF5hs.LowLevel -- all
+import HDF5hs.LowLevel (withCString)
 import HDF5hs.LowLevel.H5F
 import HDF5hs.LowLevel.H5LT
 import HDF5hs.LowLevel.H5G
 import HDF5hs.LowLevel.H5L
 import HDF5hs.LowLevel.H5A
-
+import HDF5hs.LowLevel.H5D
 
 import Foreign.C.Types (CInt)
 import Foreign.C.String (CString)
@@ -59,14 +59,16 @@ toInt :: [CInt] -> [Int]
 toInt lst = map (\v -> (unsafeCoerce v)::Int) lst
 
 withNewHDF5File :: String -> (H5Handle -> IO a) -> IO a
-withNewHDF5File str func = useAsCString (pack str) $ \cstr -> do
+withNewHDF5File str func = do
+  withCString str $ \cstr -> do
   handle <- c_H5Fcreate cstr h5Foverwrite h5Fdefault h5Fdefault
   val <- func handle
   c_H5Fclose handle
   return val
 
 withHDF5File :: String -> (H5Handle -> IO a) -> IO a
-withHDF5File str func = useAsCString (pack str) $ \cstr -> do
+withHDF5File str func = do
+  withCString str $ \cstr -> do
   handle <- c_H5Fopen cstr h5Freadwrite h5Fdefault
   val <- func handle
   c_H5Fclose handle
@@ -74,8 +76,8 @@ withHDF5File str func = useAsCString (pack str) $ \cstr -> do
 
 getDatasetNdims :: H5Handle -> String -> IO Int
 getDatasetNdims handle path = do
-  useAsCString (pack path) $ \dPath -> do
-  withArray [-128] $ \ptr -> do -- 128 is giberish
+  withCString path $ \dPath -> do
+  withArray [-128] $ \ptr   -> do -- 128 is giberish
     c_H5LTget_dataset_ndims handle dPath ptr
     val <- peekArray 1 ptr
     return $ unsafeCoerce $ head $ val
@@ -85,7 +87,7 @@ data H5DatasetInfo = H5DatasetInfo [Int] H5TypeClass Int
 
 getDatasetInfo :: H5Handle -> String -> IO H5DatasetInfo
 getDatasetInfo handle dPath = do
-  useAsCString (pack dPath) $ \cdPath -> do
+  withCString dPath $ \cdPath -> do
     ndims <- getDatasetNdims handle dPath
     datSize <- do
       withArray (toCInt [1..ndims]) $ \dimPtr     -> do
@@ -101,7 +103,7 @@ getDatasetInfo handle dPath = do
 
 putDatasetInt1D :: H5Handle -> String -> [Int] -> IO CInt
 putDatasetInt1D handle dPath nData = do
-  useAsCString (pack dPath) $ \cdPath    -> do 
+  withCString dPath         $ \cdPath    -> do 
   withArray inputArrayDims  $ \lenBuffer -> do
   withArray (toCInt nData)  $ \datBuffer -> do
   ret <- c_H5LTmake_dataset_int handle cdPath (toEnum 1) lenBuffer datBuffer
@@ -110,9 +112,10 @@ putDatasetInt1D handle dPath nData = do
       inputArrayDims = toCInt [length nData]
 
 putDatasetInt2D :: H5Handle -> String -> [[Int]] -> IO CInt
-putDatasetInt2D handle dPath nData = useAsCString (pack dPath) $ \cdPath -> do
+putDatasetInt2D handle dPath nData = do
+  withCString dPath        $ \cdPath    -> do
   withArray inputArrayDims $ \lenBuffer -> do
-  withArray flatData $ \datBuffer -> do
+  withArray flatData       $ \datBuffer -> do
   ret <- c_H5LTmake_dataset_int handle cdPath (toEnum 2) lenBuffer datBuffer
   return ret
     where 
@@ -120,7 +123,8 @@ putDatasetInt2D handle dPath nData = useAsCString (pack dPath) $ \cdPath -> do
       flatData = toCInt (foldl (++) [] nData)
 
 getDatasetInt1D :: H5Handle -> String -> IO (Maybe [Int])
-getDatasetInt1D handle dPath = useAsCString (pack dPath) $ \cdPath -> do
+getDatasetInt1D handle dPath = do
+  withCString dPath $ \cdPath -> do
   info <- getDatasetInfo handle dPath
   if (False)
      then return $ Nothing
@@ -138,7 +142,8 @@ getDatasetInt1D handle dPath = useAsCString (pack dPath) $ \cdPath -> do
         return $ Just (toInt dat)
 
 withReadonlyHDF5File :: String -> (H5Handle -> IO a) -> IO a
-withReadonlyHDF5File str func = useAsCString (pack str) $ \cstr -> do
+withReadonlyHDF5File str func = do
+  withCString str $ \cstr -> do
   handle <- c_H5Fopen cstr h5Freadonly h5Fdefault
   val <- func handle
   c_H5Fclose handle
@@ -146,5 +151,19 @@ withReadonlyHDF5File str func = useAsCString (pack str) $ \cstr -> do
 
 createGroup :: H5Handle -> String -> IO H5Handle
 createGroup handle label = do
-  useAsCString (pack label) $ \clabel -> do
+  withCString label $ \clabel -> do
     c_H5Gcreate handle clabel 0
+
+--c_H5Dcreate :: CInt -> CString -> CInt -> CInt -> CInt -> IO CInt
+{- hid_t H5Dcreate( hid_t loc_id, 
+                    const char *name, 
+                    hid_t type_id, 
+                    hid_t space_id, 
+                    hid_t dcpl_id   ) -} 
+createDataSet :: H5Handle -> String -> Int -> Int -> Int -> IO H5Handle
+createDataSet handle str v1 v2 v3 = do
+    withCString str $ \cstr ->
+        c_H5Dcreate handle cstr cv1 cv2 cv3
+    where cv1 = (toEnum v1)::CInt 
+          cv2 = (toEnum v2)::CInt 
+          cv3 = (toEnum v3)::CInt 

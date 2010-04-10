@@ -70,7 +70,6 @@ writeHDF5Group handle (H5DataSet label dat) = do
   undefined
   return ()
 
-
 loadHDF5Groups :: H5Handle -> IO [HDF5Node]
 loadHDF5Groups = undefined
 
@@ -79,8 +78,6 @@ loadHDF5File fname = do
   withReadonlyHDF5File fname $ \handle -> do
     groups <- loadHDF5Groups handle
     return $ H5File groups
-
-
 
 --loadHDF5File :: String -> IO HDF5Obj
 --loadHDF5File fname = do

@@ -44,13 +44,14 @@ highLevelTestGroup = testGroup "High level Interface Tests"
   [ testCase "Compare Empty" $ testEqEmpty
   , testCase "Compare Trivial" $ testEqTrivial
   , testCase "Compare Complex One" $ testEqOne
-  , testCase "createAndLoadEmpty" $ testCreateAndLoadEmpty
-  , testCase "createAndLoadTrivial" $ testCreateAndLoadTrivial
+  , testCase "createAndLoad Empty" $ testCreateAndLoadEmpty
+  , testCase "createAndLoad Trivial" $ testCreateAndLoadTrivial
+  , testCase "CreateAndLoad Data" $ testCreateAndLoadData
   ]
 
 testCreateAndLoadTemplate :: HDF5File -> Assertion
 testCreateAndLoadTemplate testData = do
-  withTempFileName   $ \fn     -> do
+  withTempFileName   $ \fn -> do
   writeHDF5File fn testData
   readData <- loadHDF5File fn
   assertBool "Error data mismatch between write and read" (testData == readData)
@@ -87,4 +88,9 @@ testEqOne     = testEqTemplate (
 testCreateAndLoadEmpty   = testCreateAndLoadTemplate (H5File [])
 testCreateAndLoadTrivial = testCreateAndLoadTemplate 
                            (H5File [H5Group "/group" []])
+testCreateAndLoadData    = testCreateAndLoadTemplate 
+                            (H5File [H5DataSet "myData" 
+                                     (H5IntData [1] [42])
+                                    ]
+                            )
 
