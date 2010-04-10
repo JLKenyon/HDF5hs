@@ -39,12 +39,7 @@ import Data.ByteString.Char8 (pack)
 import Directory
 import Foreign.Marshal.Array
 
-import HDF5hs.LowLevel
-import HDF5hs.MidLevel
-
-import System.Cmd (rawSystem)
-
-import TestUtil (withTempFileName)
+import TestUtil (withTempFileName, withTestDataOneD)
 
 import HDF5hs.LowLevel
 import HDF5hs.LowLevel.H5F 
@@ -113,11 +108,12 @@ testPutAndGetDatasetInt =  do
 
 testPutDataIntOneDim :: Assertion
 testPutDataIntOneDim = do 
-  withTempFileName            $ \fn        -> do
-  useAsCString (pack fn)      $ \cfn       -> do 
-  useAsCString (pack dPath)   $ \cdPath    -> do 
-  withArray    (toCInt lDat)  $ \lenBuffer -> do 
-  withArray    (toCInt nData) $ \datBuffer -> do
+  withTestDataOneD  (20,40) (-1000,1000)         $ \testData  -> do
+  withTempFileName                               $ \fn        -> do
+  useAsCString      (pack fn)                    $ \cfn       -> do 
+  useAsCString      (pack dPath)                 $ \cdPath    -> do 
+  withArray         (toCInt $ [length testData]) $ \lenBuffer -> do 
+  withArray         (toCInt testData)            $ \datBuffer -> do
      handle  <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
      lbufval <- peekArray   1   lenBuffer
      st <- c_H5LTmake_dataset_int handle cdPath (toEnum 1) lenBuffer datBuffer
@@ -125,6 +121,3 @@ testPutDataIntOneDim = do
      assertBool "testPutDatasetIntOneDim returned fail" (st <= 0)
          where
            dPath = "/mydata"
-           nData = [1..6]
-           lDat  = [toEnum $ length nData]
-

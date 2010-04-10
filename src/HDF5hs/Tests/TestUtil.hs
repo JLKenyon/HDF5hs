@@ -28,13 +28,24 @@
   
   --}
 
-module TestUtil (withTempFileName) where
+module TestUtil (withTempFileName, withTestDataOneD) where
 
 import System.Posix.Temp (mkstemp)
 import System.Directory (getTemporaryDirectory)
 import System.IO (hClose)
 import Directory
 import System.FilePath.Posix ( (</>) )
+
+import System.Random
+
+import Control.Monad
+
+import Foreign.C.Types (CInt)
+import Foreign.C.String (CString)
+import Foreign.Marshal.Array (withArray,peekArray)
+
+toCInt :: [Int] -> [CInt]
+toCInt lst = map (\v -> (toEnum v)::CInt) lst
 
 getTestFileName :: IO String
 getTestFileName = do
@@ -49,3 +60,13 @@ withTempFileName func = do
   func fname
   removeFile fname
   
+getTestDataOneD :: (Int, Int) -> (Int, Int) -> IO [Int]
+getTestDataOneD length_range value_range = do
+  testLength <- randomRIO length_range
+  mapM (\x -> randomRIO value_range) [1..testLength]
+
+withTestDataOneD :: (Int, Int) -> (Int, Int) -> ([Int] -> IO b) -> IO b
+withTestDataOneD len_rng val_rng func = do
+  testData <- getTestDataOneD len_rng val_rng
+  func testData
+

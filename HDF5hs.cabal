@@ -40,6 +40,7 @@ Executable testHDF5
                    test-framework-hunit, 
                    test-framework-quickcheck2,
                    test-framework, 
+                   random,
                    directory, 
                    HDF5hs, 
                    bytestring >= 0.9.1.5, 

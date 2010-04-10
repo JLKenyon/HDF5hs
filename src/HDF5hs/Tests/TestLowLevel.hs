@@ -59,9 +59,11 @@ import HDF5hs.LowLevel.H5LT
 import HDF5hs.LowLevel.H5Types 
 import HDF5hs.MidLevel
 
+import System.Random
+
 import Data.Maybe (isJust)
 import Unsafe.Coerce (unsafeCoerce)
-import TestUtil (withTempFileName)
+import TestUtil (withTempFileName, withTestDataOneD)
 
 lowLevelTestGroup = testGroup "Low level Interface Tests" 
   [ testCase "H5Fcreate" testH5Fcreate 
@@ -72,7 +74,8 @@ lowLevelTestGroup = testGroup "Low level Interface Tests"
   ]
 
 testH5Fcreate ::Assertion
-testH5Fcreate = useAsCString (pack fn) $ \cfn -> do 
+testH5Fcreate = do
+  useAsCString (pack fn) $ \cfn -> do 
   withTempFileName   $ \fn     -> do
   handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
   c_H5Fclose handle
@@ -185,13 +188,14 @@ testH5FcreateAndCheckSize = do
 
 testH5FcreateAndCheck :: Assertion
 testH5FcreateAndCheck = do 
+  withTestDataOneD  (20,40) (-1000,1000) $ \testDataVal -> do
   withTempFileName   $ \fn     -> do
-  createTestFile fn testData
-  checkTestFile  fn testData
+  createTestFile fn testDataVal
+  checkTestFile  fn testDataVal
     where
       testFile = "/tmp/testH5FCreateAndCheck.h5"
       testPath = "/data"
-      testData = [2..7]
+      --testData = [2..7]
 -- ---------------------------------------
       createTestFile :: String -> [Int] -> IO ()
       createTestFile fn newData = do
@@ -225,4 +229,4 @@ testH5FcreateAndCheck = do
             c_H5LTread_dataset_int handle cdPath datPtr
             peekArray (unsafeCoerce datSize) datPtr
           assertBool "Could not verify data" 
-                         ((map unsafeCoerce dat) == testData)
+                         ((map unsafeCoerce dat) == oldData)
