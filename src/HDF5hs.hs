@@ -67,6 +67,7 @@ writeHDF5Group handle (H5Group label groups) = do
   return ()
 
 writeHDF5Group handle (H5DataSet label dat) = do
+  dhandle <- createDataSet handle label
   undefined
   return ()
 
