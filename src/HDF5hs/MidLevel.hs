@@ -39,6 +39,10 @@ import Data.ByteString.Char8 (pack)
 --import HDF5hs.LowLevel -- all
 import HDF5hs.LowLevel.H5F
 import HDF5hs.LowLevel.H5LT
+import HDF5hs.LowLevel.H5G
+import HDF5hs.LowLevel.H5L
+import HDF5hs.LowLevel.H5A
+
 
 import Foreign.C.Types (CInt)
 import Foreign.C.String (CString)
@@ -140,3 +144,7 @@ withReadonlyHDF5File str func = useAsCString (pack str) $ \cstr -> do
   c_H5Fclose handle
   return val
 
+createGroup :: H5Handle -> String -> IO H5Handle
+createGroup handle label = do
+  useAsCString (pack label) $ \clabel -> do
+    c_H5Gcreate handle clabel 0

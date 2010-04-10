@@ -38,7 +38,7 @@ import HDF5hs.LowLevel.H5Types
 import HDF5hs.MidLevel
 
 hdf5MainHello :: String
-hdf5MainHello = "Hello from HDF5 (Macaw) - High Level"
+hdf5MainHello = "Hello from HDF5 - High Level"
 
 data HDF5File = H5File      [HDF5Node]
                 deriving (Show, Eq)
@@ -62,7 +62,8 @@ writeHDF5File fname (H5File groups) = do
 
 writeHDF5Group :: H5Handle -> HDF5Node -> IO ()
 writeHDF5Group handle (H5Group label groups) = do
-  undefined
+  ghandle <- createGroup handle label 
+  mapM (writeHDF5Group ghandle) groups
   return ()
 
 writeHDF5Group handle (H5DataSet label dat) = do
@@ -70,9 +71,15 @@ writeHDF5Group handle (H5DataSet label dat) = do
   return ()
 
 
+loadHDF5Groups :: H5Handle -> IO [HDF5Node]
+loadHDF5Groups = undefined
 
 loadHDF5File :: String -> IO HDF5File
-loadHDF5File = undefined
+loadHDF5File fname = do
+  withReadonlyHDF5File fname $ \handle -> do
+    groups <- loadHDF5Groups handle
+    return $ H5File groups
+
 
 
 --loadHDF5File :: String -> IO HDF5Obj
