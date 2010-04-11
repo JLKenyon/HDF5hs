@@ -35,6 +35,8 @@ import HDF5hs.LowLevel.H5G
 import HDF5hs.LowLevel.H5L     
 import HDF5hs.LowLevel.H5LT    
 import HDF5hs.LowLevel.H5Types 
+import HDF5hs.LowLevel.H5S
+import HDF5hs.LowLevel.H5T
 import HDF5hs.MidLevel
 
 hdf5MainHello :: String
@@ -44,14 +46,17 @@ data HDF5File = H5File      [HDF5Node]
                 deriving (Show, Eq)
 
 data HDF5Node = H5Group String [HDF5Node]
-              | H5DataSet String HDF5Data
+              | H5DataSet String HDF5DataSpace
                 deriving (Show, Eq)
 
-data HDF5Data = H5IntData   [Int] [Int]
-              | H5LongData  [Int] [Int]
-              | H5ShortData [Int] [Int]
-              | H5CharData  [Int] [Char]
-              | H5FloatData [Int] [Float]
+data HDF5DataSpace = H5DataSpace [Int] HDF5Data
+                     deriving (Show, Eq)
+
+data HDF5Data = H5IntData   [Int]
+              | H5LongData  [Int]
+              | H5ShortData [Int]
+              | H5CharData  [Char]
+              | H5FloatData [Float]
                 deriving (Show, Eq)
 
 writeHDF5File :: String -> HDF5File -> IO ()
@@ -67,9 +72,24 @@ writeHDF5Group handle (H5Group label groups) = do
   return ()
 
 writeHDF5Group handle (H5DataSet label dat) = do
-  dhandle <- createDataSet handle label
-  undefined
-  return ()
+  withHDF5DataSpace dat $ \shandle -> do
+
+    
+    return ()
+
+withHDF5DataSpace :: HDF5DataSpace -> (H5Handle -> IO b) -> IO b
+withHDF5DataSpace (H5DataSpace dims _) func = do
+  sHandle <- createDataSetSimple dims 
+  ret <- func sHandle
+  c_H5Sclose sHandle
+  return ret
+
+withHDF5DataTypeCopy :: H5Handle -> (H5Handle -> IO b) -> IO b
+withHDF5DataTypeCopy handle func = do
+  tHandle <- c_H5Tcopy handle
+  ret <- func tHandle
+  c_H5Tclose tHandle
+  return ret
 
 loadHDF5Groups :: H5Handle -> IO [HDF5Node]
 loadHDF5Groups = undefined

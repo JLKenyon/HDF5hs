@@ -40,8 +40,8 @@ import TestHighLevel (highLevelTestGroup)
 
 main = defaultMain tests
 
-tests = [ lowLevelTestGroup ,
-          midLevelTestGroup ,
-          highLevelTestGroup
+tests = [ lowLevelTestGroup 
+        , midLevelTestGroup 
+        , highLevelTestGroup
         ]
 

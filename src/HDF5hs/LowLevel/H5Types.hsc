@@ -48,6 +48,8 @@ import Data.Int
 import Data.Word
 import Foreign.StablePtr
 
+#include <hdf5.h>
+
 data H5AC_cache_config_t = H5AC_cache_config_t {}
 data H5A_info_t          = H5A_info_t          {}
 data H5A_operator1_t     = H5A_operator1_t     {}
@@ -68,10 +70,45 @@ data H5L_iterate_t       = H5L_iterate_t       {}
 data H5LT_lang_t         = H5LT_lang_t         {}
 data H5L_type_t          = H5L_type_t          {}
 
-#include <hdf5.h>
+
+
+newtype H5T_pad_t  = H5T_pad_t  { unH5T_pad_t  :: CInt }
+    deriving (Eq,Show)
+
+newtype H5T_pers_t = H5T_pers_t { unH5T_pers_t :: CInt }
+    deriving (Eq,Show)
+
+newtype H5T_sign_t = H5T_sign_t { unH5T_sign_t :: CInt }
+    deriving (Eq,Show)
+
+newtype H5T_str_t  = H5T_str_t  { unH5T_str_t  :: CInt }
+    deriving (Eq,Show)
 
 newtype H5S_class_t = H5S_class_t { unH5S_class_t :: CInt }
     deriving (Eq,Show)
+
+newtype H5T_cset_t      = H5T_cset_t      { unH5T_cset_t      :: CInt } 
+    deriving (Eq,Show)
+
+newtype H5T_direction_t = H5T_direction_t { unH5T_direction_t :: CInt } 
+    deriving (Eq,Show)
+
+newtype H5T_norm_t      = H5T_norm_t      { unH5T_norm_t      :: CInt } 
+    deriving (Eq,Show)
+
+newtype H5T_order_t     = H5T_order_t     { unH5T_order_t     :: CInt } 
+    deriving (Eq,Show)
+
+#{enum H5T_order_t, H5T_order_t
+ , h5T_order_error = H5T_ORDER_ERROR
+ , h5T_order_le    = H5T_ORDER_LE   
+ , h5T_order_be    = H5T_ORDER_BE   
+ , h5T_order_vax   = H5T_ORDER_VAX  
+ , h5T_order_none  = H5T_ORDER_NONE 
+}
+
+data H5T_cdata_t = H5T_cdata_t {}
+data H5T_conv_t  = H5T_conv_t {}
 
 #{enum H5S_class_t, H5S_class_t
  , h5Sno_class = H5S_NO_CLASS
@@ -159,6 +196,33 @@ newtype H5Scope = H5Scope { unH5Scope :: CInt }
 
 newtype H5Handle = H5Handle {unH5Handle :: CInt }
     deriving (Eq,Show)
+
+#{enum H5Handle, H5Handle
+ , h5T_native_char    = H5T_NATIVE_CHAR     
+ , h5T_native_schar   = H5T_NATIVE_SCHAR    
+ , h5T_native_uchar   = H5T_NATIVE_UCHAR    
+ , h5T_native_short   = H5T_NATIVE_SHORT    
+ , h5T_native_ushort  = H5T_NATIVE_USHORT   
+ , h5T_native_int     = H5T_NATIVE_INT      
+ , h5T_native_uint    = H5T_NATIVE_UINT     
+ , h5T_native_long    = H5T_NATIVE_LONG     
+ , h5T_native_ulong   = H5T_NATIVE_ULONG    
+ , h5T_native_llong   = H5T_NATIVE_LLONG    
+ , h5T_native_ullong  = H5T_NATIVE_ULLONG   
+ , h5T_native_float   = H5T_NATIVE_FLOAT    
+ , h5T_native_double  = H5T_NATIVE_DOUBLE   
+ , h5T_native_ldouble = H5T_NATIVE_LDOUBLE  
+ , h5T_native_b8      = H5T_NATIVE_B8       
+ , h5T_native_b16     = H5T_NATIVE_B16      
+ , h5T_native_b32     = H5T_NATIVE_B32      
+ , h5T_native_b64     = H5T_NATIVE_B64      
+ , h5T_native_opaque  = H5T_NATIVE_OPAQUE   
+ , h5T_native_haddr   = H5T_NATIVE_HADDR    
+ , h5T_native_hsize   = H5T_NATIVE_HSIZE    
+ , h5T_native_hssize  = H5T_NATIVE_HSSIZE   
+ , h5T_native_herr    = H5T_NATIVE_HERR     
+ , h5T_native_hbool   = H5T_NATIVE_HBOOL    
+}
 
 newtype H5T_class_t = H5T_class_t { unH5T_class_t :: CInt }
     deriving (Eq, Show)

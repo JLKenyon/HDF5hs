@@ -43,8 +43,10 @@ import HDF5hs.LowLevel.H5G
 import HDF5hs.LowLevel.H5L
 import HDF5hs.LowLevel.H5A
 import HDF5hs.LowLevel.H5D
+import HDF5hs.LowLevel.H5S
 
-import Foreign.C.Types (CInt)
+import Foreign.Ptr
+import Foreign.C.Types (CInt,CULLong)
 import Foreign.C.String (CString)
 import Foreign.Marshal.Array (withArray,peekArray)
 
@@ -160,6 +162,24 @@ createGroup handle label = do
                     hid_t type_id, 
                     hid_t space_id, 
                     hid_t dcpl_id   ) -} 
+
+
+---- hid_t H5Screate_simple(int rank, const hsize_t * dims, const hsize_t * maxdims )
+--foreign import ccall "hdf5.h H5Screate_simple"
+--        c_H5Screate_simple :: CInt -> Ptr CULLong -> Ptr CULLong -> IO H5Handle
+
+createDataSetSimple :: [Int] -> IO H5Handle
+createDataSetSimple dims = do
+  withArray ldims $ \cdims -> do
+  c_H5Screate_simple crank cdims nullPtr
+  where
+    crank = (toEnum $ length dims)::CInt
+    ldims :: [CULLong]
+    ldims = (map toEnum dims)
+
+  
+
+
 createDataSet :: H5Handle -> String -> Int -> Int -> Int -> IO H5Handle
 createDataSet handle str v1 v2 v3 = do
     withCString str $ \cstr ->

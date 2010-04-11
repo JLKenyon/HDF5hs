@@ -65,7 +65,7 @@ testEqOne     = testEqTemplate (
                   H5File [H5Group "/" 
                           [
                            H5DataSet "structure" (
-                             H5IntData [15,3] ldata )]])
+                             H5DataSpace [15,3] (H5IntData ldata ))]])
     where ldata = [ 0, 1, -1, 20, 2, 0, 26, 2, 1, 32, 2, 2, 38, 2, 2, 44, 2, 
                     1, 50, 2, 5, 56, 2, 5, 62, 3, 0, 68, 3, 8, 74, 3, 9,80, 
                     3, 9, 86, 3, 8, 92, 3, 12, 98, 3, 12 ]
@@ -90,7 +90,9 @@ testCreateAndLoadTrivial = testCreateAndLoadTemplate
                            (H5File [H5Group "/group" []])
 testCreateAndLoadData    = testCreateAndLoadTemplate 
                             (H5File [H5DataSet "myData" 
-                                     (H5IntData [1] [42])
+                                     (H5DataSpace [1] 
+                                      (H5IntData [42])
+                                     )
                                     ]
                             )
 
