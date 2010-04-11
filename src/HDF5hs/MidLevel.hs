@@ -178,15 +178,12 @@ createDataSetSimple dims = do
     ldims = (map toEnum dims)
 
   
-
-
-createDataSet :: H5Handle -> String -> Int -> Int -> Int -> IO H5Handle
+createDataSet :: H5Handle -> String -> H5Handle -> H5Handle -> H5Handle -> IO H5Handle
 createDataSet handle str v1 v2 v3 = do
     withCString str $ \cstr ->
-        c_H5Dcreate handle cstr cv1 cv2 cv3
-    where cv1 = (toEnum v1)::CInt 
-          cv2 = (toEnum v2)::CInt 
-          cv3 = (toEnum v3)::CInt 
+        c_H5Dcreate handle cstr v1 v2 v3
+
+
 
 
 

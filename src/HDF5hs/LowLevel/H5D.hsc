@@ -63,7 +63,7 @@ foreign import ccall "hdf5.h H5Dcreate"
 
 -- hid_t H5Dcreate1( hid_t loc_id, const char *name, hid_t type_id, hid_t space_id, hid_t dcpl_id )
 foreign import ccall "hdf5.h H5Dcreate1"
-        c_H5Dcreate :: H5Handle -> CString -> CInt -> CInt -> CInt -> IO H5Handle
+        c_H5Dcreate :: H5Handle -> CString -> H5Handle -> H5Handle -> H5Handle -> IO H5Handle
 --        c_H5Dcreate1 :: H5Handle -> CString -> CInt -> CInt -> CInt -> IO H5Handle
 
 
@@ -192,7 +192,7 @@ foreign import ccall "hdf5.h H5Dvlen_reclaim"
 
 -- herr_t H5Dwrite(hid_t dataset_id, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t xfer_plist_id, const void * buf ) 
 foreign import ccall "hdf5.h H5Dwrite"
-        c_H5Dwrite :: H5Handle -> CInt -> CInt -> CInt -> CInt -> Ptr () -> IO CInt
+        c_H5Dwrite :: H5Handle -> H5Handle -> H5Handle -> H5Handle -> H5Handle -> Ptr CInt -> IO CInt
 
 
 

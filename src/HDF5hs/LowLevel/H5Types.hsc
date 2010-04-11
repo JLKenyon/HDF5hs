@@ -185,6 +185,13 @@ newtype H5TypeClass = H5TypeClass { unH5TypeClass :: CInt }
 h5Fdefault :: CInt
 h5Fdefault = #const H5P_DEFAULT
 
+h5Pdefault :: H5Handle
+h5Pdefault = H5Handle $ #const H5P_DEFAULT
+
+h5Sall :: H5Handle
+h5Sall = H5Handle $ #const H5S_ALL
+
+
 newtype H5Scope = H5Scope { unH5Scope :: CInt }
     deriving (Eq, Show)
 
