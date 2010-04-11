@@ -42,10 +42,11 @@ import HDF5hs.MidLevel
 
 import Data.ByteString (useAsCString)
 import Data.ByteString.Char8 (pack)
+import Data.Char (ord)
 import Foreign.C.Types (CInt)
 import Foreign.C.String (CString)
 import Foreign.Marshal.Array
-
+import Foreign.Ptr (castPtr)
 
 
 hdf5MainHello :: String
@@ -97,13 +98,22 @@ writeHDF5Data :: H5Handle -> HDF5Data -> IO CInt
 writeHDF5Data handle (H5IntData ldat) = do
   withArray (map toEnum ldat) $ \cdat -> do
     c_H5Dwrite handle h5T_native_int h5Sall h5Sall h5Pdefault cdat
---H5LongData  [Int]
---H5ShortData [Int]
---H5CharData  [Char]
---H5FloatData [Float]
 
+writeHDF5Data handle (H5LongData ldat) = do
+  withArray (map toEnum ldat) $ \cdat -> do
+    c_H5Dwrite handle h5T_native_int h5Sall h5Sall h5Pdefault cdat
 
+writeHDF5Data handle (H5ShortData ldat) = do
+  withArray (map toEnum ldat) $ \cdat -> do
+    c_H5Dwrite handle h5T_native_short h5Sall h5Sall h5Pdefault cdat
 
+writeHDF5Data handle (H5CharData ldat) = do
+  withArray (map (toEnum . ord) ldat) $ \cdat -> do
+    c_H5Dwrite handle h5T_native_char h5Sall h5Sall h5Pdefault cdat
+
+--writeHDF5Data handle (H5FloatData ldat) = do
+--  withArray ldat $ \cdat -> do
+--    c_H5Dwrite handle h5T_native_float h5Sall h5Sall h5Pdefault cdat
 
 -- ------------------------------------------
 

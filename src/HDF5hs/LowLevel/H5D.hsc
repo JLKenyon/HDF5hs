@@ -40,7 +40,7 @@ import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Marshal
 import Foreign.Marshal.Array
-
+import Foreign.Ptr
 
 -- herr_t H5Dclose(hid_t dataset_id )
 foreign import ccall "hdf5.h H5Dclose"
@@ -192,7 +192,11 @@ foreign import ccall "hdf5.h H5Dvlen_reclaim"
 
 -- herr_t H5Dwrite(hid_t dataset_id, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t xfer_plist_id, const void * buf ) 
 foreign import ccall "hdf5.h H5Dwrite"
-        c_H5Dwrite :: H5Handle -> H5Handle -> H5Handle -> H5Handle -> H5Handle -> Ptr CInt -> IO CInt
+        c_H5Dwrite :: H5Handle -> H5Handle -> H5Handle -> H5Handle -> H5Handle -> Ptr CChar -> IO CInt
+
+cw_H5Dwrite  :: (Storable a, Enum a) => H5Handle -> H5Handle -> H5Handle -> H5Handle -> H5Handle -> Ptr a -> IO CInt
+cw_H5Dwrite h1 h2 h3 h4 h5 p1 = c_H5Dwrite h1 h2 h3 h4 h5 (castPtr p1)
+--        c_H5Dwrite  :: (Storable a, Enum a) => H5Handle -> H5Handle -> H5Handle -> H5Handle -> H5Handle -> Ptr a -> IO CInt
 
 
 
