@@ -41,12 +41,18 @@ import TestUtil (withTempFileName)
 import HDF5hs
 
 highLevelTestGroup = testGroup "High level Interface Tests" 
-  [ testCase "Compare Empty" $ testEqEmpty
-  , testCase "Compare Trivial" $ testEqTrivial
-  , testCase "Compare Complex One" $ testEqOne
-  , testCase "createAndLoad Empty" $ testCreateAndLoadEmpty
-  , testCase "createAndLoad Trivial" $ testCreateAndLoadTrivial
-  , testCase "CreateAndLoad Data" $ testCreateAndLoadData
+  [ testCase "Compare Empty"           $ testEqEmpty
+  , testCase "Compare Trivial"         $ testEqTrivial
+  , testCase "Compare Complex One"     $ testEqOne
+  , testCase "createAndLoad Empty"     $ testCreateAndLoadEmpty
+  , testCase "createAndLoad Trivial"   $ testCreateAndLoadTrivial
+  , testCase "CreateAndLoad Char"      $ testCreateAndLoadChars
+  , testCase "CreateAndLoad Short"     $ testCreateAndLoadShorts
+  , testCase "CreateAndLoad Int"       $ testCreateAndLoadInt
+  , testCase "CreateAndLoad Int Two"   $ testCreateAndLoadIntTwo
+  , testCase "CreateAndLoad Int Three" $ testCreateAndLoadIntThree
+  , testCase "CreateAndLoad Int Three" $ testCreateAndLoadIntFour
+  , testCase "CreateAndLoad Int Three" $ testCreateAndLoadIntFive
   ]
 
 testCreateAndLoadTemplate :: HDF5File -> Assertion
@@ -70,29 +76,51 @@ testEqOne     = testEqTemplate (
                     1, 50, 2, 5, 56, 2, 5, 62, 3, 0, 68, 3, 8, 74, 3, 9,80, 
                     3, 9, 86, 3, 8, 92, 3, 12, 98, 3, 12 ]
 
---data HDF5File = H5File      [HDF5Node]
---                deriving (Show, Eq)
--- 
---data HDF5Node = H5Group String [HDF5Node]
---              | H5DataSet String HDF5Data
---                deriving (Show, Eq)
--- 
---data HDF5Data = H5IntData   [Int] [Int]
---              | H5LongData  [Int] [Int]
---              | H5ShortData [Int] [Int]
---              | H5CharData  [Int] [Char]
---              | H5FloatData [Int] [Float]
---                deriving (Show, Eq)
-
-
 testCreateAndLoadEmpty   = testCreateAndLoadTemplate (H5File [])
 testCreateAndLoadTrivial = testCreateAndLoadTemplate 
                            (H5File [H5Group "/group" []])
-testCreateAndLoadData    = testCreateAndLoadTemplate 
-                            (H5File [H5DataSet "myData" 
-                                     (H5DataSpace [1] 
-                                      (H5IntData [42])
-                                     )
-                                    ]
-                            )
 
+testCreateAndLoadChars    = testCreateAndLoadTemplate 
+                            (H5File [H5DataSet "myCharData" 
+                                     (H5DataSpace [(length "Hello World")] 
+                                      (H5CharData "Hello World")
+                                     )])
+
+testCreateAndLoadShorts    = testCreateAndLoadTemplate
+                            (H5File [H5DataSet "myShortData"
+                                     (H5DataSpace [1]
+                                      (H5ShortData [12])
+                                     )])
+
+testCreateAndLoadInt     = testCreateAndLoadTemplate
+                            (H5File [H5DataSet "myIntData"
+                                     (H5DataSpace [1]
+                                      (H5IntData [42])
+                                     )])
+
+testCreateAndLoadIntTwo  = testCreateAndLoadTemplate
+                            (H5File [H5DataSet "myIntData"
+                                     (H5DataSpace [4]
+                                      (H5IntData [10,20,30,40])
+                                     )])
+
+testCreateAndLoadIntThree = testCreateAndLoadTemplate
+                            (H5File [H5DataSet "myIntData"
+                                     (H5DataSpace [4,4]
+                                      (H5IntData [10,20,30,40,
+                                                  11,21,31,41,
+                                                  12,22,32,42,
+                                                  13,23,33,43])
+                                     )])
+
+testCreateAndLoadIntFour  = testCreateAndLoadTemplate
+                            (H5File [H5DataSet "myMaxByte"
+                                     (H5DataSpace [4]
+                                      (H5IntData [255,255,255,255])
+                                     )])
+
+testCreateAndLoadIntFive  = testCreateAndLoadTemplate
+                            (H5File [H5DataSet "myMaxBytePlusOne"
+                                     (H5DataSpace [4]
+                                      (H5IntData [256,256,256,256])
+                                     )])

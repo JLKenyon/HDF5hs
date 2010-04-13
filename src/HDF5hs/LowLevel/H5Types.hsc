@@ -75,14 +75,42 @@ data H5L_type_t          = H5L_type_t          {}
 newtype H5T_pad_t  = H5T_pad_t  { unH5T_pad_t  :: CInt }
     deriving (Eq,Show)
 
+#{enum H5T_pad_t, H5T_pad_t
+ , h5T_pad_error      = H5T_PAD_ERROR     
+ , h5T_pad_zero       = H5T_PAD_ZERO      
+ , h5T_pad_one        = H5T_PAD_ONE       
+ , h5T_pad_background = H5T_PAD_BACKGROUND
+ , h5T_npad           = H5T_NPAD          
+}
+
 newtype H5T_pers_t = H5T_pers_t { unH5T_pers_t :: CInt }
     deriving (Eq,Show)
+
+#{enum H5T_pers_t, H5T_pers_t
+ , h5t_pers_dontcare = H5T_PERS_DONTCARE
+ , h5t_pers_hard     = H5T_PERS_HARD
+ , h5t_pers_soft     = H5T_PERS_SOFT
+}
 
 newtype H5T_sign_t = H5T_sign_t { unH5T_sign_t :: CInt }
     deriving (Eq,Show)
 
+#{enum H5T_sign_t, H5T_sign_t
+ , h5T_sgn_error = H5T_SGN_ERROR
+ , h5T_sgn_none  = H5T_SGN_NONE
+ , h5T_sgn_2     = H5T_SGN_2
+ , h5T_nsgn      = H5T_NSGN
+}
+
 newtype H5T_str_t  = H5T_str_t  { unH5T_str_t  :: CInt }
     deriving (Eq,Show)
+
+#{enum H5T_str_t, H5T_str_t
+ , h5T_str_error    = H5T_STR_ERROR   
+ , h5T_str_nullterm = H5T_STR_NULLTERM
+ , h5T_str_nullpad  = H5T_STR_NULLPAD 
+ , h5T_str_spacepad = H5T_STR_SPACEPAD
+}
 
 newtype H5S_class_t = H5S_class_t { unH5S_class_t :: CInt }
     deriving (Eq,Show)
@@ -90,11 +118,30 @@ newtype H5S_class_t = H5S_class_t { unH5S_class_t :: CInt }
 newtype H5T_cset_t      = H5T_cset_t      { unH5T_cset_t      :: CInt } 
     deriving (Eq,Show)
 
+#{enum H5T_cset_t, H5T_cset_t
+ , h5T_cset_error = H5T_CSET_ERROR
+ , h5T_cset_ascii = H5T_CSET_ASCII
+ , h5T_cset_utf8  = H5T_CSET_UTF8 
+}
+
 newtype H5T_direction_t = H5T_direction_t { unH5T_direction_t :: CInt } 
     deriving (Eq,Show)
 
+#{enum H5T_direction_t, H5T_direction_t
+ , h5T_dir_default = H5T_DIR_DEFAULT
+ , h5T_dir_ascend  = H5T_DIR_ASCEND 
+ , h5T_dir_descend = H5T_DIR_DESCEND
+}
+
 newtype H5T_norm_t      = H5T_norm_t      { unH5T_norm_t      :: CInt } 
     deriving (Eq,Show)
+
+#{enum H5T_norm_t, H5T_norm_t
+ , h5T_norm_error   = H5T_NORM_ERROR
+ , h5T_norm_implied = H5T_NORM_IMPLIED
+ , h5T_norm_msbset  = H5T_NORM_MSBSET
+ , h5T_norm_none    = H5T_NORM_NONE
+}
 
 newtype H5T_order_t     = H5T_order_t     { unH5T_order_t     :: CInt } 
     deriving (Eq,Show)
@@ -111,94 +158,91 @@ data H5T_cdata_t = H5T_cdata_t {}
 data H5T_conv_t  = H5T_conv_t {}
 
 #{enum H5S_class_t, H5S_class_t
- , h5Sno_class = H5S_NO_CLASS
- , h5Sscalar   = H5S_SCALAR  
- , h5Ssimple   = H5S_SIMPLE  
+ , h5S_no_class = H5S_NO_CLASS
+ , h5S_scalar   = H5S_SCALAR  
+ , h5S_simple   = H5S_SIMPLE  
 }
 -- , h5Scomplex  = H5S_COMPLEX
 
 newtype H5S_seloper_t = H5S_seloper_t { unH5S_seloper_t :: CInt } 
     deriving (Eq,Show)
 
-
 #{enum H5S_seloper_t, H5S_seloper_t
- , h5Sselect_noop    = H5S_SELECT_NOOP   
- , h5Sselect_set     = H5S_SELECT_SET    
- , h5Sselect_or      = H5S_SELECT_OR     
- , h5Sselect_and     = H5S_SELECT_AND
- , h5Sselect_xor     = H5S_SELECT_XOR
- , h5Sselect_notb    = H5S_SELECT_NOTB
- , h5Sselect_nota    = H5S_SELECT_NOTA
- , h5Sselect_append  = H5S_SELECT_APPEND 
- , h5Sselect_prepend = H5S_SELECT_PREPEND
- , h5Sselect_invalid = H5S_SELECT_INVALID
+ , h5S_select_noop    = H5S_SELECT_NOOP   
+ , h5S_select_set     = H5S_SELECT_SET    
+ , h5S_select_or      = H5S_SELECT_OR     
+ , h5S_select_and     = H5S_SELECT_AND
+ , h5S_select_xor     = H5S_SELECT_XOR
+ , h5S_select_notb    = H5S_SELECT_NOTB
+ , h5S_select_nota    = H5S_SELECT_NOTA
+ , h5S_select_append  = H5S_SELECT_APPEND 
+ , h5S_select_prepend = H5S_SELECT_PREPEND
+ , h5S_select_invalid = H5S_SELECT_INVALID
 }
 
 newtype H5S_sel_type  = H5S_sel_type  { unH5S_sel_type  :: CInt } 
     deriving (Eq,Show)
 
 #{enum H5S_sel_type, H5S_sel_type
- , h5Ssel_error      = H5S_SEL_ERROR
- , h5Ssel_none       = H5S_SEL_NONE
- , h5Ssel_points     = H5S_SEL_POINTS
- , h5Ssel_hyperslabs = H5S_SEL_HYPERSLABS 
- , h5Ssel_all        = H5S_SEL_ALL
- , h5Ssel_n          = H5S_SEL_N
+ , h5S_sel_error      = H5S_SEL_ERROR
+ , h5S_sel_none       = H5S_SEL_NONE
+ , h5S_sel_points     = H5S_SEL_POINTS
+ , h5S_sel_hyperslabs = H5S_SEL_HYPERSLABS 
+ , h5S_sel_all        = H5S_SEL_ALL
+ , h5S_sel_n          = H5S_SEL_N
 }
-
 
 newtype H5OpenFlag = H5OpenFlag { unH5OpenFlag  :: CInt }
     deriving (Eq,Show)
 
 #{enum H5OpenFlag, H5OpenFlag
- , h5Foverwrite = H5F_ACC_TRUNC
- , h5Fabort     = H5F_ACC_EXCL
+ , h5F_overwrite = H5F_ACC_TRUNC
+ , h5F_abort     = H5F_ACC_EXCL
  }
 
 newtype H5OpenMode = H5OpenMode { unH5OpenMode  :: CInt }
     deriving (Eq,Show)
 
 #{enum H5OpenMode, H5OpenMode
- , h5Freadonly  = H5F_ACC_RDONLY
- , h5Freadwrite = H5F_ACC_RDWR
+ , h5F_readonly  = H5F_ACC_RDONLY
+ , h5F_readwrite = H5F_ACC_RDWR
  }
 
 newtype H5TypeClass = H5TypeClass { unH5TypeClass :: CInt }
     deriving (Eq, Show, Storable)
 
 #{enum H5TypeClass, H5TypeClass
- , h5Fno_class  = H5T_NO_CLASS 
- , h5Finteger   = H5T_INTEGER  
- , h5Ffloat     = H5T_FLOAT    
- , h5Ftime      = H5T_TIME     
- , h5Fstring    = H5T_STRING   
- , h5Fbitfield  = H5T_BITFIELD 
- , h5Fopaque    = H5T_OPAQUE   
- , h5Fcompound  = H5T_COMPOUND 
- , h5Freference = H5T_REFERENCE
- , h5Fenum      = H5T_ENUM     
- , h5Fvlen      = H5T_VLEN     
- , h5Farray     = H5T_ARRAY    
- , h5Fnclasses  = H5T_NCLASSES 
+ , h5F_no_class  = H5T_NO_CLASS 
+ , h5F_integer   = H5T_INTEGER  
+ , h5F_float     = H5T_FLOAT    
+ , h5F_time      = H5T_TIME     
+ , h5F_string    = H5T_STRING   
+ , h5F_bitfield  = H5T_BITFIELD 
+ , h5F_opaque    = H5T_OPAQUE   
+ , h5F_compound  = H5T_COMPOUND 
+ , h5F_reference = H5T_REFERENCE
+ , h5F_enum      = H5T_ENUM     
+ , h5F_vlen      = H5T_VLEN     
+ , h5F_array     = H5T_ARRAY    
+ , h5F_nclasses  = H5T_NCLASSES 
  }
  
-h5Fdefault :: CInt
-h5Fdefault = #const H5P_DEFAULT
+h5F_default :: CInt
+h5F_default = #const H5P_DEFAULT
 
-h5Pdefault :: H5Handle
-h5Pdefault = H5Handle $ #const H5P_DEFAULT
+h5P_default :: H5Handle
+h5P_default = H5Handle $ #const H5P_DEFAULT
 
-h5Sall :: H5Handle
-h5Sall = H5Handle $ #const H5S_ALL
-
+h5S_all :: H5Handle
+h5S_all = H5Handle $ #const H5S_ALL
 
 newtype H5Scope = H5Scope { unH5Scope :: CInt }
     deriving (Eq, Show)
 
 #{enum H5Scope, H5Scope
- , h5Slocal  = H5F_SCOPE_LOCAL
- , h5Sglobal = H5F_SCOPE_GLOBAL
- , h5Sdown   = H5F_SCOPE_DOWN
+ , h5S_local  = H5F_SCOPE_LOCAL
+ , h5S_global = H5F_SCOPE_GLOBAL
+ , h5S_down   = H5F_SCOPE_DOWN
 }
 
 newtype H5Handle = H5Handle {unH5Handle :: CInt }
@@ -233,4 +277,19 @@ newtype H5Handle = H5Handle {unH5Handle :: CInt }
 
 newtype H5T_class_t = H5T_class_t { unH5T_class_t :: CInt }
     deriving (Eq, Show)
+
+#{enum H5T_class_t, H5T_class_t
+ , h5T_no_class       = H5T_NO_CLASS 
+ , h5T_integer        = H5T_INTEGER  
+ , h5T_float          = H5T_FLOAT    
+ , h5T_time           = H5T_TIME     
+ , h5T_string         = H5T_STRING   
+ , h5T_bitfield       = H5T_BITFIELD 
+ , h5T_opaque         = H5T_OPAQUE   
+ , h5T_compound       = H5T_COMPOUND 
+ , h5T_reference      = H5T_REFERENCE
+ , h5T_enum           = H5T_ENUM     
+ , h5T_vlen           = H5T_VLEN     
+ , h5T_array          = H5T_ARRAY    
+}
 

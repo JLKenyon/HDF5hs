@@ -89,7 +89,7 @@ testGetDatasetInfo = do
   withNewHDF5File fn $ \handle -> do putDatasetInt1D handle dPath testData
   info <- withReadonlyHDF5File fn $ \handle -> do getDatasetInfo handle dPath 
   assertBool "Failed to get proper dataset info" 
-                 (info == (H5DatasetInfo [8] (h5Finteger) 4))
+                 (info == (H5DatasetInfo [8] (h5F_integer) 4))
     where
       dPath    = "/testdata"
       testData = [1..8]
@@ -114,7 +114,7 @@ testPutDataIntOneDim = do
   useAsCString      (pack dPath)                 $ \cdPath    -> do 
   withArray         (toCInt $ [length testData]) $ \lenBuffer -> do 
   withArray         (toCInt testData)            $ \datBuffer -> do
-     handle  <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
+     handle  <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default
      lbufval <- peekArray   1   lenBuffer
      st <- c_H5LTmake_dataset_int handle cdPath (toEnum 1) lenBuffer datBuffer
      c_H5Fclose handle

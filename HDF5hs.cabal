@@ -27,8 +27,8 @@ library
   Build-Depends:   base >= 2.0, bytestring >= 0.9.1.5, process >= 1.0.1.1
   extra-libraries: hdf5, hdf5_hl
 -- This is only for my local setup! Should be cleaned up
-  extra-lib-dirs:  /home/jkenyon/system/hdf5-1.8.3/lib
-  include-dirs:    /home/jkenyon/system/hdf5-1.8.3/include
+--  extra-lib-dirs:  /home/jkenyon/system/hdf5-1.8.3/lib
+--  include-dirs:    /home/jkenyon/system/hdf5-1.8.3/include
   ghc-options:     --make
   extensions:      GeneralizedNewtypeDeriving
 

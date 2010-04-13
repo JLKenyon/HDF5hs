@@ -62,8 +62,6 @@ data HDF5Node = H5Group String [HDF5Node]
 data HDF5DataSpace = H5DataSpace { dims :: [Int], dataSet :: HDF5Data }
                      deriving (Show, Eq)
 
-
-
 data HDF5Data = H5IntData   [Int]
               | H5LongData  [Int]
               | H5ShortData [Int]
@@ -84,62 +82,36 @@ writeHDF5Group handle (H5Group label groups) = do
   return ()
 
 writeHDF5Group handle (H5DataSet label dataSpace) = do
-  withHDF5DataSpace dataSpace $ \sHandle -> do
+  withHDF5DataSpace (dims dataSpace)  $ \sHandle -> do
   withHDF5DataTypeCopy h5T_native_int $ \tHandle -> do
   c_H5Tset_order tHandle h5T_order_le
   withHDF5DataSet handle label tHandle sHandle $ \dsHandle -> do
     writeHDF5Data dsHandle (dataSet dataSpace)
-    --status = H5Dwrite(dataset, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT    ,data
-    --withArray dat $ \cdat -> do
-    --  c_H5Dwrite dsHandle h5T_native_int h5Sall h5Sall h5Pdefault cdat
-  return ()
+    return ()
 
 writeHDF5Data :: H5Handle -> HDF5Data -> IO CInt
 writeHDF5Data handle (H5IntData ldat) = do
   withArray (map toEnum ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_int h5Sall h5Sall h5Pdefault cdat
+    c_H5Dwrite handle h5T_native_int h5S_all h5S_all h5P_default cdat
 
 writeHDF5Data handle (H5LongData ldat) = do
   withArray (map toEnum ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_int h5Sall h5Sall h5Pdefault cdat
+    c_H5Dwrite handle h5T_native_long h5S_all h5S_all h5P_default cdat
 
 writeHDF5Data handle (H5ShortData ldat) = do
   withArray (map toEnum ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_short h5Sall h5Sall h5Pdefault cdat
+    c_H5Dwrite handle h5T_native_short h5S_all h5S_all h5P_default cdat
 
 writeHDF5Data handle (H5CharData ldat) = do
   withArray (map (toEnum . ord) ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_char h5Sall h5Sall h5Pdefault cdat
+    c_H5Dwrite handle h5T_native_char h5S_all h5S_all h5P_default cdat
 
 --writeHDF5Data handle (H5FloatData ldat) = do
 --  withArray ldat $ \cdat -> do
---    c_H5Dwrite handle h5T_native_float h5Sall h5Sall h5Pdefault cdat
+--    c_H5Dwrite handle h5T_native_float h5S_all h5S_all h5P_default cdat
 
 -- ------------------------------------------
 
-withHDF5DataSpace :: HDF5DataSpace -> (H5Handle -> IO b) -> IO b
-withHDF5DataSpace (H5DataSpace dims _) func = do
-  sHandle <- createDataSetSimple dims 
-  ret <- func sHandle
-  c_H5Sclose sHandle
-  return ret
-
-withHDF5DataTypeCopy :: H5Handle -> (H5Handle -> IO b) -> IO b
-withHDF5DataTypeCopy handle func = do
-  tHandle <- c_H5Tcopy handle
-  ret <- func tHandle
-  c_H5Tclose tHandle
-  return ret
-
---H5Dcreate(file,"johndata",datatype,dataspace,H5P_DEFAULT,H5P_DEFAULT, H5P_DEFAULT
-
-withHDF5DataSet :: H5Handle -> String -> H5Handle -> H5Handle -> (H5Handle -> IO b) -> IO b
-withHDF5DataSet handle label htype hdataspace func = do
-  useAsCString (pack label) $ \clabel -> do
-  dhandle <- c_H5Dcreate handle clabel htype hdataspace h5Pdefault
-  ret <- func dhandle
-  c_H5Dclose dhandle
-  return ret
 
 loadHDF5Groups :: H5Handle -> IO [HDF5Node]
 loadHDF5Groups = undefined
@@ -149,18 +121,3 @@ loadHDF5File fname = do
   withReadonlyHDF5File fname $ \handle -> do
     groups <- loadHDF5Groups handle
     return $ H5File groups
-
---loadHDF5File :: String -> IO HDF5Obj
---loadHDF5File fname = do
---  withReadonlyHDF5File fname $ \handle -> do
---                       return $ File fname
-                 
-
-
-
-
-
-
-
-
-

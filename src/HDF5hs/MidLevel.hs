@@ -44,6 +44,7 @@ import HDF5hs.LowLevel.H5L
 import HDF5hs.LowLevel.H5A
 import HDF5hs.LowLevel.H5D
 import HDF5hs.LowLevel.H5S
+import HDF5hs.LowLevel.H5T
 
 import Foreign.Ptr
 import Foreign.C.Types (CInt,CULLong)
@@ -63,7 +64,7 @@ toInt lst = map (\v -> (unsafeCoerce v)::Int) lst
 withNewHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withNewHDF5File str func = do
   withCString str $ \cstr -> do
-  handle <- c_H5Fcreate cstr h5Foverwrite h5Fdefault h5Fdefault
+  handle <- c_H5Fcreate cstr h5F_overwrite h5F_default h5F_default
   val <- func handle
   c_H5Fclose handle
   return val
@@ -71,7 +72,7 @@ withNewHDF5File str func = do
 withHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withHDF5File str func = do
   withCString str $ \cstr -> do
-  handle <- c_H5Fopen cstr h5Freadwrite h5Fdefault
+  handle <- c_H5Fopen cstr h5F_readwrite h5F_default
   val <- func handle
   c_H5Fclose handle
   return val
@@ -93,7 +94,7 @@ getDatasetInfo handle dPath = do
     ndims <- getDatasetNdims handle dPath
     datSize <- do
       withArray (toCInt [1..ndims]) $ \dimPtr     -> do
-      withArray [h5Fno_class]       $ \classIdPtr -> do 
+      withArray [h5F_no_class]      $ \classIdPtr -> do 
       withArray [0]                 $ \sizePtr    -> do
         c_H5LTget_dataset_info handle cdPath dimPtr classIdPtr sizePtr
         dimSize <- peekArray (unsafeCoerce ndims) dimPtr
@@ -146,7 +147,7 @@ getDatasetInt1D handle dPath = do
 withReadonlyHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withReadonlyHDF5File str func = do
   withCString str $ \cstr -> do
-  handle <- c_H5Fopen cstr h5Freadonly h5Fdefault
+  handle <- c_H5Fopen cstr h5F_readonly h5F_default
   val <- func handle
   c_H5Fclose handle
   return val
@@ -184,6 +185,27 @@ createDataSet handle str v1 v2 v3 = do
         c_H5Dcreate handle cstr v1 v2 v3
 
 
+withHDF5DataSpace :: [Int] -> (H5Handle -> IO b) -> IO b
+withHDF5DataSpace dims func = do
+  sHandle <- createDataSetSimple dims 
+  ret <- func sHandle
+  c_H5Sclose sHandle
+  return ret
+
+withHDF5DataTypeCopy :: H5Handle -> (H5Handle -> IO b) -> IO b
+withHDF5DataTypeCopy handle func = do
+  tHandle <- c_H5Tcopy handle
+  ret <- func tHandle
+  c_H5Tclose tHandle
+  return ret
+
+withHDF5DataSet :: H5Handle -> String -> H5Handle -> H5Handle -> (H5Handle -> IO b) -> IO b
+withHDF5DataSet handle label htype hdataspace func = do
+  useAsCString (pack label) $ \clabel -> do
+  dhandle <- c_H5Dcreate handle clabel htype hdataspace h5P_default
+  ret <- func dhandle
+  c_H5Dclose dhandle
+  return ret
 
 
 

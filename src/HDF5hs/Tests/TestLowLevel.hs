@@ -77,7 +77,7 @@ testH5Fcreate ::Assertion
 testH5Fcreate = do
   useAsCString (pack fn) $ \cfn -> do 
   withTempFileName   $ \fn     -> do
-  handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault
+  handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default
   c_H5Fclose handle
   success <- doesFileExist fn
   assertBool "H5Fcreate failed to create a new HDF5 file"
@@ -92,7 +92,7 @@ testH5FcreateWithInt =  do
   useAsCString (pack "/data")         $ \dpath        -> do
   withArray (toCInt [length newData]) $ \lenData      -> do
   withArray (toCInt newData)          $ \bufferedData -> do
-  handle <- c_H5Fcreate ptr h5Foverwrite h5Fdefault h5Fdefault 
+  handle <- c_H5Fcreate ptr h5F_overwrite h5F_default h5F_default 
   c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufferedData
   c_H5Fclose handle
   success <- doesFileExist fn 
@@ -107,10 +107,10 @@ testH5FcreateAndReopen = do
   useAsCString (pack "/data") $ \dpath -> do
   withArray (toCInt [length newData]) $ \lenData -> do
   withArray (toCInt newData)          $ \bufData -> do
-    handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault 
+    handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default 
     c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
     c_H5Fclose handle
-    handle2 <- c_H5Fopen cfn h5Freadonly h5Fdefault
+    handle2 <- c_H5Fopen cfn h5F_readonly h5F_default
     c_H5Fclose handle2
     assertBool "H5Fcreate failed to create and open a new HDF5 file" 
         ((unH5Handle handle2) >= 0)
@@ -132,7 +132,7 @@ testH5FcreateAndCheckNumDims = do
         useAsCString (pack "/data") $ \dpath -> do
         withArray (toCInt [length newData]) $ \lenData -> do
         withArray (toCInt newData)          $ \bufData -> do
-          handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault 
+          handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default 
           c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
           c_H5Fclose handle
           return ()
@@ -141,7 +141,7 @@ testH5FcreateAndCheckNumDims = do
       checkTestFile fn oldData = do 
         useAsCString (pack fn) $ \cfn -> do
         useAsCString (pack "/data") $ \dPath -> do
-          handle <- c_H5Fopen cfn h5Freadonly h5Fdefault
+          handle <- c_H5Fopen cfn h5F_readonly h5F_default
           ndims <- getDatasetNdims handle "/data"
           c_H5Fclose handle
           assertBool "oh geez" (ndims == 1)
@@ -162,7 +162,7 @@ testH5FcreateAndCheckSize = do
         useAsCString (pack testPath) $ \dpath -> do
         withArray (toCInt [length newData]) $ \lenData -> do
         withArray (toCInt newData)          $ \bufData -> do
-          handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault 
+          handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default 
           c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
           c_H5Fclose handle
           return ()
@@ -171,15 +171,15 @@ testH5FcreateAndCheckSize = do
       checkTestFile fn oldData = do 
         useAsCString (pack fn) $ \cfn -> do
         useAsCString (pack testPath) $ \cdPath -> do
-          handle <- c_H5Fopen cfn h5Freadonly h5Fdefault
+          handle <- c_H5Fopen cfn h5F_readonly h5F_default
           ndims <- withArray [0] $ \ptr -> do
             c_H5LTget_dataset_ndims handle cdPath ptr
             ndimsArray <- peekArray 1 ptr
             return $ unsafeCoerce $ head $ ndimsArray
           datSize <- do
-            withArray [1..ndims]    $ \dimPtr     -> do
-            withArray [h5Fno_class] $ \classIdPtr -> do 
-            withArray [0]           $ \sizePtr    -> do
+            withArray [1..ndims]     $ \dimPtr     -> do
+            withArray [h5F_no_class] $ \classIdPtr -> do 
+            withArray [0]            $ \sizePtr    -> do
               c_H5LTget_dataset_info handle  cdPath dimPtr classIdPtr sizePtr
               peekArray (unsafeCoerce ndims) dimPtr
           assertBool "Could not verify data size" 
@@ -203,7 +203,7 @@ testH5FcreateAndCheck = do
         useAsCString (pack testPath) $ \dpath -> do
         withArray (toCInt [length newData]) $ \lenData -> do
         withArray (toCInt newData)          $ \bufData -> do
-          handle <- c_H5Fcreate cfn h5Foverwrite h5Fdefault h5Fdefault 
+          handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default 
           c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
           c_H5Fclose handle
           return ()
@@ -212,15 +212,15 @@ testH5FcreateAndCheck = do
       checkTestFile fn oldData = do 
         useAsCString (pack fn) $ \cfn -> do
         useAsCString (pack testPath) $ \cdPath -> do
-          handle <- c_H5Fopen cfn h5Freadonly h5Fdefault
+          handle <- c_H5Fopen cfn h5F_readonly h5F_default
           ndims <- withArray [0] $ \ptr -> do
             c_H5LTget_dataset_ndims handle cdPath ptr
             ndimsArray <- peekArray 1 ptr
             return $ unsafeCoerce $ head $ ndimsArray
           datSize <- do
-            withArray [1..ndims]    $ \dimPtr     -> do
-            withArray [h5Fno_class] $ \classIdPtr -> do 
-            withArray [0]           $ \sizePtr    -> do
+            withArray [1..ndims]     $ \dimPtr     -> do
+            withArray [h5F_no_class] $ \classIdPtr -> do 
+            withArray [0]            $ \sizePtr    -> do
               c_H5LTget_dataset_info handle  cdPath dimPtr classIdPtr sizePtr
               cDat <- peekArray (unsafeCoerce ndims) dimPtr
               return $ head cDat
