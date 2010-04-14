@@ -41,18 +41,19 @@ import TestUtil (withTempFileName)
 import HDF5hs
 
 highLevelTestGroup = testGroup "High level Interface Tests" 
-  [ testCase "Compare Empty"           $ testEqEmpty
-  , testCase "Compare Trivial"         $ testEqTrivial
-  , testCase "Compare Complex One"     $ testEqOne
-  , testCase "createAndLoad Empty"     $ testCreateAndLoadEmpty
-  , testCase "createAndLoad Trivial"   $ testCreateAndLoadTrivial
-  , testCase "CreateAndLoad Char"      $ testCreateAndLoadChars
-  , testCase "CreateAndLoad Short"     $ testCreateAndLoadShorts
-  , testCase "CreateAndLoad Int"       $ testCreateAndLoadInt
-  , testCase "CreateAndLoad Int Two"   $ testCreateAndLoadIntTwo
-  , testCase "CreateAndLoad Int Three" $ testCreateAndLoadIntThree
-  , testCase "CreateAndLoad Int Three" $ testCreateAndLoadIntFour
-  , testCase "CreateAndLoad Int Three" $ testCreateAndLoadIntFive
+  [ testCase "Compare Empty"            $ testEqEmpty
+  , testCase "Compare Trivial"          $ testEqTrivial
+  , testCase "Compare Complex One"      $ testEqOne
+  , testCase "createAndLoad Empty"      $ testCreateAndLoadEmpty
+  , testCase "createAndLoad Trivial"    $ testCreateAndLoadTrivial
+  , testCase "CreateAndLoad Char"       $ testCreateAndLoadChars
+  , testCase "CreateAndLoad Short"      $ testCreateAndLoadShorts
+  , testCase "CreateAndLoad Int"        $ testCreateAndLoadInt
+  , testCase "CreateAndLoad Int Two"    $ testCreateAndLoadIntTwo
+  , testCase "CreateAndLoad Int Three"  $ testCreateAndLoadIntThree
+  , testCase "CreateAndLoad Int Three"  $ testCreateAndLoadIntFour
+  , testCase "CreateAndLoad Int Three"  $ testCreateAndLoadIntFive
+  , testCase "CreateAndLoad MultiGroup" $ testCreateAndLoadMultiGroup
   ]
 
 testCreateAndLoadTemplate :: HDF5File -> Assertion
@@ -124,3 +125,9 @@ testCreateAndLoadIntFive  = testCreateAndLoadTemplate
                                      (H5DataSpace [4]
                                       (H5IntData [256,256,256,256])
                                      )])
+
+testCreateAndLoadMultiGroup = testCreateAndLoadTemplate
+                            (H5File [
+                              H5Group "/group1" []
+                             ,H5Group "/group2" []
+                             ])                              

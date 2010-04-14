@@ -112,12 +112,23 @@ writeHDF5Data handle (H5CharData ldat) = do
 
 -- ------------------------------------------
 
-
-loadHDF5Groups :: H5Handle -> IO [HDF5Node]
-loadHDF5Groups = undefined
-
 loadHDF5File :: String -> IO HDF5File
 loadHDF5File fname = do
   withReadonlyHDF5File fname $ \handle -> do
     groups <- loadHDF5Groups handle
     return $ H5File groups
+
+loadHDF5Groups :: H5Handle -> IO [HDF5Node]
+loadHDF5Groups handle = do
+  num_groups <- getNumObjectsFromGroup handle
+  names <- mapM (getObjectNameByIndex handle) [0..(num_groups-1)]
+  group_handle <- mapM (c_H5Gopen handle) names
+  putStrLn $ show group_handle
+
+--c_H5Gopen
+  
+--putStrLn $ show names
+  
+  undefined
+
+

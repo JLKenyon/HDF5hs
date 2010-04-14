@@ -47,19 +47,31 @@ import HDF5hs.LowLevel.H5S
 import HDF5hs.LowLevel.H5T
 
 import Foreign.Ptr
-import Foreign.C.Types (CInt,CULLong)
-import Foreign.C.String (CString)
+import Foreign.C.Types (CChar, CInt,CULLong)
+import Foreign.C.String (CString,peekCAString)
 import Foreign.Marshal.Array (withArray,peekArray)
+import Foreign.Storable
+import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
+
 
 import Unsafe.Coerce (unsafeCoerce)
 
 hdf5HelloMid = "Hello World Mid Level"
 
 toCInt :: [Int] -> [CInt]
-toCInt lst = map (\v -> (toEnum v)::CInt) lst
+toCInt = map toEnum
+--toCInt lst = map (\v -> (toEnum v)::CInt) lst
+
+toC :: (Storable a, Enum a) => [Int] -> [a]
+toC  = map toEnum
 
 toInt :: [CInt] -> [Int]
-toInt lst = map (\v -> (unsafeCoerce v)::Int) lst
+toInt = map fromEnum
+--toInt lst = map (\v -> (unsafeCoerce v)::Int) lst
+
+fromC :: (Storable a, Enum a) => [a] -> [Int]
+fromC  = map fromEnum
 
 withNewHDF5File :: String -> (H5Handle -> IO a) -> IO a
 withNewHDF5File str func = do
@@ -207,7 +219,58 @@ withHDF5DataSet handle label htype hdataspace func = do
   c_H5Dclose dhandle
   return ret
 
+getIntArrayByPtr :: Int -> (Ptr CInt -> IO ()) -> IO [Int]
+getIntArrayByPtr size func = do
+  withArray (toCInt [1..size]) $ \cptr -> do
+    func cptr
+    val <- peekArray size cptr
+    return $ toInt val
+ 
+getULLongArrayByPtr :: Int -> (Ptr CULLong -> IO ()) -> IO [Int]
+getULLongArrayByPtr size func = do
+  withArray (toC [1..size]) $ \cptr -> do
+    func cptr
+    val <- peekArray size cptr
+    return $ fromC val
 
+getStringByPtr :: Int -> (CString -> IO ()) -> IO String
+getStringByPtr size func = do
+  useAsCString (pack $ replicate size '\0') $ \cptr -> do
+  func cptr
+  peekCAString cptr
+
+getULLongValByPtr :: (Ptr CULLong -> IO a) -> IO Int
+getULLongValByPtr func = do
+  alloca $ \cptr -> do
+    func cptr
+    ret <- peek cptr
+    return $ unsafeCoerce ret
+
+getNumObjectsFromGroup :: H5Handle -> IO Int
+getNumObjectsFromGroup handle = getULLongValByPtr (c_H5Gget_num_objs handle)
+
+--c_H5Gget_objname_by_idx :: H5Handle -> CULLong -> CString -> CULLong -> IO CULLong
+
+getObjectNameByIndex :: H5Handle -> Int -> IO String
+getObjectNameByIndex handle idx = do
+  getStringByPtr len wrap_get
+    where
+      wrap_get :: CString -> IO ()
+      wrap_get cstr = do
+        c_H5Gget_objname_by_idx handle (toEnum idx) cstr (toEnum len)
+        return ()
+      len = 1024
+
+getGroup :: H5Handle -> String -> IO H5Handle
+getGroup handle name = do
+  withCString name $ \cname -> do
+    c_H5Gopen handle cname
+
+--getNumObjectsFromGroup handle = do
+--  withArray (map toEnum [0]) $ \cptr -> do
+--    c_H5Gget_num_objs handle cptr
+--    val <- peek cptr
+--    return $ unsafeCoerce val
 
 
 

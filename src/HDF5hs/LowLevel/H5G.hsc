@@ -180,7 +180,7 @@ foreign import ccall "hdf5.h H5Gopen"
 
 -- hid_t H5Gopen1(hid_t loc_id, const char *name ) 
 foreign import ccall "hdf5.h H5Gopen1"
-        c_H5Gopen :: H5Handle -> CString -> IO CInt
+        c_H5Gopen :: H5Handle -> CString -> IO H5Handle
 --        c_H5Gopen1 :: H5Handle -> CString -> IO CInt
 
 
