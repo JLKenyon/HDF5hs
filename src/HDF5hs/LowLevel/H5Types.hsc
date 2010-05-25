@@ -242,8 +242,9 @@ newtype H5Scope = H5Scope { unH5Scope :: CInt }
 #{enum H5Scope, H5Scope
  , h5S_local  = H5F_SCOPE_LOCAL
  , h5S_global = H5F_SCOPE_GLOBAL
- , h5S_down   = H5F_SCOPE_DOWN
 }
+
+-- , h5S_down   = H5F_SCOPE_DOWN
 
 newtype H5Handle = H5Handle {unH5Handle :: CInt }
     deriving (Eq,Show)

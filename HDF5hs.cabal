@@ -29,7 +29,6 @@ library
 -- This is only for my local setup! Should be cleaned up
 --  extra-lib-dirs:  /home/jkenyon/system/hdf5-1.8.3/lib
 --  include-dirs:    /home/jkenyon/system/hdf5-1.8.3/include
-  ghc-options:     --make
   extensions:      GeneralizedNewtypeDeriving
 
 Executable testHDF5
@@ -50,6 +49,5 @@ Executable testHDF5
                    unix >= 2.3.2.0, 
                    filepath >= 1.1.0.2
   extra-libraries: hdf5, hdf5_hl
-  ghc-options:     --make
 
 
