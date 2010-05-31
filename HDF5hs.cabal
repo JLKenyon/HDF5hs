@@ -1,5 +1,5 @@
 Name:      HDF5hs
-Version:   0.2
+Version:   0.0.2
 License:   BSD3
 
 Synopsis: A set of wrappings for the HDF5 library.
