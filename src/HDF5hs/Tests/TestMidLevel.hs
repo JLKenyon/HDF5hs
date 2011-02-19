@@ -55,28 +55,35 @@ import HDF5hs.MidLevel.File
 import HDF5hs.MidLevel.Group
 
 midLevelTestGroup = testGroup "Mid level Interface Tests" 
-                    [ testCase "H5FcreateMid"        $ testH5FcreateMid
-                    , testCase "withHDF5File"        $ testWithHDF5File
-                    , testCase "testWithOneGroup"    $ testWithOneGroup
+                    [ testCase "H5FcreateMid"             $ testH5FcreateMid
+                    , testCase "withHDF5File"             $ testWithHDF5File
+                    , testCase "testWithOneGroup"         $ testWithOneGroup
+                    , testCase "testWithOneGroupReopen"   $ testWithOneGroupReopen
+                    , testCase "testWithThreeGroupReopen" $ testWithThreeGroupReopen
 --                    , testCase "getDatasetInfo"      $ testGetDatasetInfo
 --                    , testCase "putAndGetDatasetInt" $ testPutAndGetDatasetInt
 --                    , testCase "putDatasetIntOneDim" $ testPutDataIntOneDim
                     ]
 
+-- Util
+
+validHandle :: H5Handle -> Bool
+validHandle handle = (unH5Handle handle) >= 0
+
 -- Tests
- 
+
 testH5FcreateMid :: Assertion
 testH5FcreateMid = do
   withTempFileName   $ \fn     -> do
-    withNewFile fn     $ \handle -> do return ()
+    withNewFile fn   $ \handle -> do return ()
     ret <- doesFileExist fn
     assertBool "withNewHDF5File failed to create a new file" ret
 
 testWithHDF5File :: Assertion
 testWithHDF5File = do
   withTempFileName   $ \fn     -> do
-    withNewFile fn $ \handle -> do return ()
-    ret <- withOpenFile fn $ \handle -> do return ((unH5Handle handle) >= 0)
+    withNewFile fn $ \hFile -> do return ()
+    ret <- withOpenFile fn $ \hFile -> do return $ validHandle hFile
     assertBool "Could not reopen test HDF5 file" ret
 
 testWithOneGroup :: Assertion
@@ -84,9 +91,56 @@ testWithOneGroup = do
   withTempFileName $ \fn -> do
     withNewFile  fn $ \hFile -> do
       withNewGroup hFile "Base" $ \hGroup -> do return ()
-    ret <- withOpenFile fn $ \handle -> do return ((unH5Handle handle) >= 0)
+    ret <- withOpenFile fn $ \hFile -> do return $ validHandle hFile
     assertBool "Could not reopen test HDF5 file (with group)" ret
 
+testWithOneGroupReopen :: Assertion
+testWithOneGroupReopen = do
+  withTempFileName $ \fn -> do
+    withNewFile  fn $ \hFile -> do
+      withNewGroup hFile groupName $ \hGroup -> do return ()
+    ret <- withOpenFile fn $ \hFile -> do 
+      withOpenGroup hFile groupName $ \hGroup -> do return $ validHandle hGroup
+    assertBool "Could not reopen test HDF5 file (with group)" ret
+  where
+    groupName = "Base"
+
+testWithThreeGroupReopen :: Assertion
+testWithThreeGroupReopen = do
+  withTempFileName $ \fn -> do
+    withNewFile  fn $ \hFile -> do
+      withNewGroup hFile groupName1 $ \hGroup -> do return ()
+      withNewGroup hFile groupName2 $ \hGroup -> do return ()
+      withNewGroup hFile groupName3 $ \hGroup -> do return ()
+    ret <- withOpenFile fn $ \hFile -> do 
+      ret1 <- withOpenGroup hFile groupName1 $ \hGroup -> do return $ validHandle hGroup
+      ret2 <- withOpenGroup hFile groupName2 $ \hGroup -> do return $ validHandle hGroup
+      ret3 <- withOpenGroup hFile groupName3 $ \hGroup -> do return $ validHandle hGroup
+      return $ all id [ret1, ret2, ret3]
+    assertBool "Could not reopen test HDF5 file (with group)" ret
+  where
+    groupName1 = "One"
+    groupName2 = "Two"
+    groupName3 = "Three"
+
+testWithNestedGroupReopen :: Assertion
+testWithNestedGroupReopen = do
+  withTempFileName $ \fn -> do
+    withNewFile  fn $ \hFile -> do
+      withNewGroup     hFile   groupName1 $ \hGroup1 -> do
+        withNewGroup   hGroup1 groupName2 $ \hGroup2 -> do
+          withNewGroup hGroup2 groupName3 $ \hGroup3 -> do return ()
+    ret <- withOpenFile fn $ \hFile -> do 
+      ret1 <- withOpenGroup hFile groupName1 $ \hGroup -> do return $ validHandle hGroup
+      ret2 <- withOpenGroup hFile groupName2 $ \hGroup -> do return $ validHandle hGroup
+      ret3 <- withOpenGroup hFile groupName3 $ \hGroup -> do return $ validHandle hGroup
+      return $ all id [ret1, ret2, ret3]
+    assertBool "Could not reopen test HDF5 file (with group)" ret
+  where
+    groupName1 = "One"
+    groupName2 = "Two"
+    groupName3 = "Three"
+  
 
 
 
