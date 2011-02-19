@@ -38,7 +38,9 @@ import HDF5hs.LowLevel.H5Types
 import HDF5hs.LowLevel.H5S
 import HDF5hs.LowLevel.H5T
 import HDF5hs.LowLevel.H5D
-import HDF5hs.MidLevel
+import HDF5hs.MidLevel.File
+import HDF5hs.MidLevel.Group
+import HDF5hs.MidLevel.Util
 
 import Data.ByteString (useAsCString)
 import Data.ByteString.Char8 (pack)
@@ -69,63 +71,63 @@ data HDF5Data = H5IntData   [Int]
               | H5FloatData [Float]
                 deriving (Show, Eq)
 
-writeHDF5File :: String -> HDF5File -> IO ()
-writeHDF5File fname (H5File groups) = do
-  withNewHDF5File fname $ \handle -> do
-    mapM (writeHDF5Group handle) groups
-    return ()
-
-writeHDF5Group :: H5Handle -> HDF5Node -> IO ()
-writeHDF5Group handle (H5Group label groups) = do
-  ghandle <- createGroup handle label 
-  mapM (writeHDF5Group ghandle) groups
-  return ()
-
-writeHDF5Group handle (H5DataSet label dataSpace) = do
-  withHDF5DataSpace (dims dataSpace)  $ \sHandle -> do
-  withHDF5DataTypeCopy h5T_native_int $ \tHandle -> do
-  c_H5Tset_order tHandle h5T_order_le
-  withHDF5DataSet handle label tHandle sHandle $ \dsHandle -> do
-    writeHDF5Data dsHandle (dataSet dataSpace)
-    return ()
-
-writeHDF5Data :: H5Handle -> HDF5Data -> IO CInt
-writeHDF5Data handle (H5IntData ldat) = do
-  withArray (map toEnum ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_int h5S_all h5S_all h5P_default cdat
-
-writeHDF5Data handle (H5LongData ldat) = do
-  withArray (map toEnum ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_long h5S_all h5S_all h5P_default cdat
-
-writeHDF5Data handle (H5ShortData ldat) = do
-  withArray (map toEnum ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_short h5S_all h5S_all h5P_default cdat
-
-writeHDF5Data handle (H5CharData ldat) = do
-  withArray (map (toEnum . ord) ldat) $ \cdat -> do
-    c_H5Dwrite handle h5T_native_char h5S_all h5S_all h5P_default cdat
-
---writeHDF5Data handle (H5FloatData ldat) = do
---  withArray ldat $ \cdat -> do
---    c_H5Dwrite handle h5T_native_float h5S_all h5S_all h5P_default cdat
-
--- ------------------------------------------
-
-loadHDF5File :: String -> IO HDF5File
-loadHDF5File fname = do
-  withReadonlyHDF5File fname $ \handle -> do
-    groups <- loadHDF5Groups handle
-    return $ H5File groups
-
-loadHDF5Groups :: H5Handle -> IO [HDF5Node]
-loadHDF5Groups handle = do
-  num_groups <- getNumObjectsFromGroup handle
-  names <- mapM (getObjectNameByIndex handle) [0..(num_groups-1)]
---  group_handle <- mapM (c_H5Gopen handle) names
---  putStrLn $ show group_handle
---c_H5Gopen
---putStrLn $ show names  
-  undefined
-
+--writeHDF5File :: String -> HDF5File -> IO ()
+--writeHDF5File fname (H5File groups) = do
+--  withNewFile fname $ \handle -> do
+--    mapM (writeHDF5Group handle) groups
+--    return ()
+-- 
+--writeHDF5Group :: H5Handle -> HDF5Node -> IO ()
+--writeHDF5Group handle (H5Group label groups) = do
+--  ghandle <- createGroup handle label 
+--  mapM (writeHDF5Group ghandle) groups
+--  return ()
+-- 
+--writeHDF5Group handle (H5DataSet label dataSpace) = do
+--  withHDF5DataSpace (dims dataSpace)  $ \sHandle -> do
+--  withHDF5DataTypeCopy h5T_native_int $ \tHandle -> do
+--  c_H5Tset_order tHandle h5T_order_le
+--  withHDF5DataSet handle label tHandle sHandle $ \dsHandle -> do
+--    writeHDF5Data dsHandle (dataSet dataSpace)
+--    return ()
+-- 
+--writeHDF5Data :: H5Handle -> HDF5Data -> IO CInt
+--writeHDF5Data handle (H5IntData ldat) = do
+--  withArray (map toEnum ldat) $ \cdat -> do
+--    c_H5Dwrite handle h5T_native_int h5S_all h5S_all h5P_default cdat
+-- 
+--writeHDF5Data handle (H5LongData ldat) = do
+--  withArray (map toEnum ldat) $ \cdat -> do
+--    c_H5Dwrite handle h5T_native_long h5S_all h5S_all h5P_default cdat
+-- 
+--writeHDF5Data handle (H5ShortData ldat) = do
+--  withArray (map toEnum ldat) $ \cdat -> do
+--    c_H5Dwrite handle h5T_native_short h5S_all h5S_all h5P_default cdat
+-- 
+--writeHDF5Data handle (H5CharData ldat) = do
+--  withArray (map (toEnum . ord) ldat) $ \cdat -> do
+--    c_H5Dwrite handle h5T_native_char h5S_all h5S_all h5P_default cdat
+-- 
+----writeHDF5Data handle (H5FloatData ldat) = do
+----  withArray ldat $ \cdat -> do
+----    c_H5Dwrite handle h5T_native_float h5S_all h5S_all h5P_default cdat
+-- 
+---- ------------------------------------------
+-- 
+--loadHDF5File :: String -> IO HDF5File
+--loadHDF5File fname = do
+--  withReadonlyHDF5File fname $ \handle -> do
+--    groups <- loadHDF5Groups handle
+--    return $ H5File groups
+-- 
+--loadHDF5Groups :: H5Handle -> IO [HDF5Node]
+--loadHDF5Groups handle = do
+--  num_groups <- getNumObjectsFromGroup handle
+--  names <- mapM (getObjectNameByIndex handle) [0..(num_groups-1)]
+----  group_handle <- mapM (c_H5Gopen handle) names
+----  putStrLn $ show group_handle
+----c_H5Gopen
+----putStrLn $ show names  
+--  undefined
+-- 
 

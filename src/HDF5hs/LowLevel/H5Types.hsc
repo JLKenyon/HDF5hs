@@ -226,9 +226,13 @@ newtype H5TypeClass = H5TypeClass { unH5TypeClass :: CInt }
  , h5F_array     = H5T_ARRAY    
  , h5F_nclasses  = H5T_NCLASSES 
  }
- 
+
+
 h5F_default :: CInt
 h5F_default = #const H5P_DEFAULT
+
+h5_default :: CInt
+h5_default = #const H5P_DEFAULT
 
 h5P_default :: H5Handle
 h5P_default = H5Handle $ #const H5P_DEFAULT

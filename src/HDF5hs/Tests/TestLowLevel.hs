@@ -57,7 +57,8 @@ import HDF5hs.LowLevel.H5G
 import HDF5hs.LowLevel.H5D 
 import HDF5hs.LowLevel.H5LT 
 import HDF5hs.LowLevel.H5Types 
-import HDF5hs.MidLevel
+
+import HDF5hs.MidLevel.Util (toCInt)
 
 import System.Random
 
@@ -65,59 +66,57 @@ import Data.Maybe (isJust)
 import Unsafe.Coerce (unsafeCoerce)
 import TestUtil (withTempFileName, withTestDataOneD)
 
-lowLevelTestGroup = testGroup "Low level Interface Tests" 
+lowLevelTestGroup = testGroup "Low level Interface Tests"
   [ testCase "H5Fcreate" testH5Fcreate 
   , testCase "H5FCreate and Reopen" testH5FcreateAndReopen
   , testCase "H5FCreate and Check Dims" testH5FcreateAndCheckNumDims
   , testCase "H5FCreate and Check Size" testH5FcreateAndCheckSize
   , testCase "H5FCreate and Check" testH5FcreateAndCheck
   ]
-
+ 
 testH5Fcreate ::Assertion
 testH5Fcreate = do
-  useAsCString (pack fn) $ \cfn -> do 
-  withTempFileName   $ \fn     -> do
-  handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default
-  c_H5Fclose handle
-  success <- doesFileExist fn
-  assertBool "H5Fcreate failed to create a new HDF5 file"
-                 (unH5Handle handle >= 0)
-      where
-        fn = "/tmp/testH5FCreate.h5"
-
+  withTempFileName   $ \fn        -> do
+    useAsCString (pack fn) $ \cfn -> do 
+      handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default
+      c_H5Fclose handle
+      success <- doesFileExist fn
+      assertBool "H5Fcreate failed to create a new HDF5 file"
+                 ((unH5Handle handle) >= 0 && success)
+ 
 testH5FcreateWithInt :: Assertion
 testH5FcreateWithInt =  do
   withTempFileName   $ \fn     -> do
-  useAsCString (pack fn)              $ \ptr          -> do 
-  useAsCString (pack "/data")         $ \dpath        -> do
-  withArray (toCInt [length newData]) $ \lenData      -> do
-  withArray (toCInt newData)          $ \bufferedData -> do
-  handle <- c_H5Fcreate ptr h5F_overwrite h5F_default h5F_default 
-  c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufferedData
-  c_H5Fclose handle
-  success <- doesFileExist fn 
-  assertBool "H5Fcreate failed to create a new HDF5 file" success
-    where
-      newData = [2..6]
-
+    useAsCString (pack fn)              $ \ptr          -> do 
+    useAsCString (pack "/data")         $ \dpath        -> do
+    withArray (toCInt [length newData]) $ \lenData      -> do
+    withArray (toCInt newData)          $ \bufferedData -> do
+    handle <- c_H5Fcreate ptr h5F_overwrite h5F_default h5F_default 
+    c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufferedData
+    c_H5Fclose handle
+    success <- doesFileExist fn 
+    assertBool "H5Fcreate failed to create a new HDF5 file" success
+      where
+        newData = [2..6]
+ 
 testH5FcreateAndReopen :: Assertion
 testH5FcreateAndReopen = do
   withTempFileName   $ \fn     -> do
-  useAsCString (pack fn) $ \cfn -> do 
-  useAsCString (pack "/data") $ \dpath -> do
-  withArray (toCInt [length newData]) $ \lenData -> do
-  withArray (toCInt newData)          $ \bufData -> do
-    handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default 
-    c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
-    c_H5Fclose handle
-    handle2 <- c_H5Fopen cfn h5F_readonly h5F_default
-    c_H5Fclose handle2
-    assertBool "H5Fcreate failed to create and open a new HDF5 file" 
-        ((unH5Handle handle2) >= 0)
-    where
-      newData = [2..6]
-
-
+    useAsCString (pack fn) $ \cfn -> do 
+    useAsCString (pack "/data") $ \dpath -> do
+    withArray (toCInt [length newData]) $ \lenData -> do
+    withArray (toCInt newData)          $ \bufData -> do
+      handle <- c_H5Fcreate cfn h5F_overwrite h5F_default h5F_default 
+      c_H5LTmake_dataset_int handle dpath (toEnum 1) lenData bufData
+      c_H5Fclose handle
+      handle2 <- c_H5Fopen cfn h5F_readonly h5F_default
+      c_H5Fclose handle2
+      assertBool "H5Fcreate failed to create and open a new HDF5 file" 
+          ((unH5Handle handle2) >= 0)
+      where
+        newData = [2..6]
+ 
+ 
 testH5FcreateAndCheckNumDims :: Assertion
 testH5FcreateAndCheckNumDims = do   
   withTempFileName   $ \fn     -> do
@@ -145,8 +144,17 @@ testH5FcreateAndCheckNumDims = do
           ndims <- getDatasetNdims handle "/data"
           c_H5Fclose handle
           assertBool "oh geez" (ndims == 1)
-        
+-- --------------------------------------
+      getDatasetNdims :: H5Handle -> String -> IO Int
+      getDatasetNdims handle path = do
+        withCString path $ \dPath -> do
+        withArray [-128] $ \ptr   -> do -- 128 is giberish
+          c_H5LTget_dataset_ndims handle dPath ptr
+          val <- peekArray 1 ptr
+          return $ unsafeCoerce $ head $ val
 
+        
+ 
 testH5FcreateAndCheckSize :: Assertion
 testH5FcreateAndCheckSize = do 
   withTempFileName   $ \fn     -> do
@@ -184,8 +192,7 @@ testH5FcreateAndCheckSize = do
               peekArray (unsafeCoerce ndims) dimPtr
           assertBool "Could not verify data size" 
                          ((map unsafeCoerce datSize) == [length testData])
-
-
+ 
 testH5FcreateAndCheck :: Assertion
 testH5FcreateAndCheck = do 
   withTestDataOneD  (20,40) (-1000,1000) $ \testDataVal -> do

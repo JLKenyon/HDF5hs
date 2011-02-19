@@ -109,7 +109,7 @@ foreign import ccall "hdf5.h H5Gget_linkval"
 
 -- herr_t H5Gget_num_objs(hid_t loc_id, hsize_t* num_obj)
 foreign import ccall "hdf5.h H5Gget_num_objs"
-        c_H5Gget_num_objs :: H5Handle -> Ptr CULLong -> IO CInt
+        c_H5Gget_num_objs :: H5Handle -> Ptr CULLong -> IO CULLong
 
 
 
@@ -187,7 +187,7 @@ foreign import ccall "hdf5.h H5Gopen1"
 
 -- hid_t H5Gopen2( hid_t loc_id, const char * name, hid_t gapl_id ) 
 foreign import ccall "hdf5.h H5Gopen2"
-        c_H5Gopen2 :: H5Handle -> CString -> CInt -> IO CInt
+        c_H5Gopen2 :: H5Handle -> CString -> CInt -> IO H5Handle
 
 
 

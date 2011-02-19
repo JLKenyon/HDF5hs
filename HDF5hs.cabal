@@ -22,7 +22,9 @@ library
     HDF5hs.LowLevel.H5LT,
     HDF5hs.LowLevel.H5S,
     HDF5hs.LowLevel.H5T,
-    HDF5hs.MidLevel
+    HDF5hs.MidLevel.Util,
+    HDF5hs.MidLevel.File,
+    HDF5hs.MidLevel.Group    
   HS-Source-Dirs:  src
   Build-Depends:   base >= 2.0, bytestring >= 0.9.1.5, process >= 1.0.1.1
   extra-libraries: hdf5, hdf5_hl
