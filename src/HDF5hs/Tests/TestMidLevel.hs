@@ -60,6 +60,7 @@ midLevelTestGroup = testGroup "Mid level Interface Tests"
                     , testCase "testWithOneGroup"         $ testWithOneGroup
                     , testCase "testWithOneGroupReopen"   $ testWithOneGroupReopen
                     , testCase "testWithThreeGroupReopen" $ testWithThreeGroupReopen
+                    , testCase "testWithNestedGroupCount" $ testWithNestedGroupCount
 --                    , testCase "getDatasetInfo"      $ testGetDatasetInfo
 --                    , testCase "putAndGetDatasetInt" $ testPutAndGetDatasetInt
 --                    , testCase "putDatasetIntOneDim" $ testPutDataIntOneDim
@@ -79,31 +80,39 @@ testH5FcreateMid = do
     ret <- doesFileExist fn
     assertBool "withNewHDF5File failed to create a new file" ret
 
+-- -----------------------------------------------------------------------------
+
 testWithHDF5File :: Assertion
 testWithHDF5File = do
   withTempFileName   $ \fn     -> do
     withNewFile fn $ \hFile -> do return ()
-    ret <- withOpenFile fn $ \hFile -> do return $ validHandle hFile
+    ret <- withFile fn $ \hFile -> do return $ validHandle hFile
     assertBool "Could not reopen test HDF5 file" ret
+
+-- -----------------------------------------------------------------------------
 
 testWithOneGroup :: Assertion
 testWithOneGroup = do
   withTempFileName $ \fn -> do
     withNewFile  fn $ \hFile -> do
       withNewGroup hFile "Base" $ \hGroup -> do return ()
-    ret <- withOpenFile fn $ \hFile -> do return $ validHandle hFile
+    ret <- withFile fn $ \hFile -> do return $ validHandle hFile
     assertBool "Could not reopen test HDF5 file (with group)" ret
+
+-- -----------------------------------------------------------------------------
 
 testWithOneGroupReopen :: Assertion
 testWithOneGroupReopen = do
   withTempFileName $ \fn -> do
     withNewFile  fn $ \hFile -> do
       withNewGroup hFile groupName $ \hGroup -> do return ()
-    ret <- withOpenFile fn $ \hFile -> do 
-      withOpenGroup hFile groupName $ \hGroup -> do return $ validHandle hGroup
+    ret <- withFile fn $ \hFile -> do 
+      withGroup hFile groupName $ \hGroup -> do return $ validHandle hGroup
     assertBool "Could not reopen test HDF5 file (with group)" ret
   where
     groupName = "Base"
+
+-- -----------------------------------------------------------------------------
 
 testWithThreeGroupReopen :: Assertion
 testWithThreeGroupReopen = do
@@ -112,16 +121,18 @@ testWithThreeGroupReopen = do
       withNewGroup hFile groupName1 $ \hGroup -> do return ()
       withNewGroup hFile groupName2 $ \hGroup -> do return ()
       withNewGroup hFile groupName3 $ \hGroup -> do return ()
-    ret <- withOpenFile fn $ \hFile -> do 
-      ret1 <- withOpenGroup hFile groupName1 $ \hGroup -> do return $ validHandle hGroup
-      ret2 <- withOpenGroup hFile groupName2 $ \hGroup -> do return $ validHandle hGroup
-      ret3 <- withOpenGroup hFile groupName3 $ \hGroup -> do return $ validHandle hGroup
+    ret <- withFile fn $ \hFile -> do 
+      ret1 <- withGroup hFile groupName1 $ \hGroup -> do return $ validHandle hGroup
+      ret2 <- withGroup hFile groupName2 $ \hGroup -> do return $ validHandle hGroup
+      ret3 <- withGroup hFile groupName3 $ \hGroup -> do return $ validHandle hGroup
       return $ all id [ret1, ret2, ret3]
     assertBool "Could not reopen test HDF5 file (with group)" ret
   where
     groupName1 = "One"
     groupName2 = "Two"
     groupName3 = "Three"
+
+-- -----------------------------------------------------------------------------
 
 testWithNestedGroupReopen :: Assertion
 testWithNestedGroupReopen = do
@@ -130,17 +141,36 @@ testWithNestedGroupReopen = do
       withNewGroup     hFile   groupName1 $ \hGroup1 -> do
         withNewGroup   hGroup1 groupName2 $ \hGroup2 -> do
           withNewGroup hGroup2 groupName3 $ \hGroup3 -> do return ()
-    ret <- withOpenFile fn $ \hFile -> do 
-      ret1 <- withOpenGroup hFile groupName1 $ \hGroup -> do return $ validHandle hGroup
-      ret2 <- withOpenGroup hFile groupName2 $ \hGroup -> do return $ validHandle hGroup
-      ret3 <- withOpenGroup hFile groupName3 $ \hGroup -> do return $ validHandle hGroup
+    ret <- withFile fn $ \hFile -> do 
+      ret1 <- withGroup hFile groupName1 $ \hGroup -> do return $ validHandle hGroup
+      ret2 <- withGroup hFile groupName2 $ \hGroup -> do return $ validHandle hGroup
+      ret3 <- withGroup hFile groupName3 $ \hGroup -> do return $ validHandle hGroup
       return $ all id [ret1, ret2, ret3]
     assertBool "Could not reopen test HDF5 file (with group)" ret
   where
     groupName1 = "One"
     groupName2 = "Two"
     groupName3 = "Three"
+
+-- -----------------------------------------------------------------------------
   
+testWithNestedGroupCount :: Assertion
+testWithNestedGroupCount = do
+ withTempFileName $ \fn -> do
+    withNewFile  fn $ \hFile -> do
+      withNewGroup hFile groupName1 $ \hGroup -> do return ()
+      withNewGroup hFile groupName2 $ \hGroup -> do return ()
+      withNewGroup hFile groupName3 $ \hGroup -> do return ()
+    ret <- withFile fn $ \hFile -> do 
+      num <- getNumNObjsInGroup hFile                    
+      return $ (num == (toEnum 3))
+    assertBool "getNumNObjsInGroup did not match 3 group file" ret
+  where
+    groupName1 = "One"
+    groupName2 = "Two"
+    groupName3 = "Three"
+ 
+-- -----------------------------------------------------------------------------
 
 
 

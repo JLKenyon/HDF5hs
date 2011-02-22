@@ -35,12 +35,14 @@ import HDF5hs.LowLevel.H5Types
 import HDF5hs.LowLevel.H5G
 import HDF5hs.MidLevel.Util (applyWithString, getULLongValByPtr)
 
+
+    
 withNewGroup  :: H5Handle -> String -> (H5Handle -> IO a) -> IO a
 withNewGroup parent = do
   applyWithString (\cname -> c_H5Gcreate2 parent cname h5_default h5_default h5_default) c_H5Gclose
 
-withOpenGroup :: H5Handle -> String -> (H5Handle -> IO a) -> IO a
-withOpenGroup parent = do
+withGroup :: H5Handle -> String -> (H5Handle -> IO a) -> IO a
+withGroup parent = do
   applyWithString (\cname -> c_H5Gopen2 parent cname h5_default) c_H5Gclose
 
 getNumNObjsInGroup :: H5Handle -> IO CULLong

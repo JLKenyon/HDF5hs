@@ -26,7 +26,7 @@
   --}
 
 module HDF5hs.MidLevel.File 
-    (withNewFile, withOpenFile)
+    (withNewFile, withFile)
 where
 
 import HDF5hs.MidLevel.Util (applyWithString)
@@ -38,6 +38,6 @@ withNewFile :: String -> (H5Handle -> IO a) -> IO a
 withNewFile  = do
   applyWithString (\cstr -> c_H5Fcreate cstr h5F_overwrite h5F_default h5F_default) c_H5Fclose
 
-withOpenFile :: String -> (H5Handle -> IO a) -> IO a
-withOpenFile = do
+withFile :: String -> (H5Handle -> IO a) -> IO a
+withFile = do
   applyWithString (\cstr -> c_H5Fopen cstr h5F_readwrite h5F_default) c_H5Fclose
